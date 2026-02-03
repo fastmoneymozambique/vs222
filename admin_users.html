@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KKR Admin | Gerenciar Usuários</title>
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome para ícones (CDN) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- CSS EMBUTIDO AQUI (Tema Admin) -->
+    <style>
+        /* Variáveis CSS para o tema Admin (Consistente) */
+        :root {
+            --primary-admin: #c0392b; 
+            --hover-admin: #a93226;
+            --text-dark: #333;
+            --text-medium: #666;
+            --border-light: #e0e0e0;
+            --white: #ffffff;
+            --app-background: #f4f4f7;
+            --card-bg: #fff;
+            --success-color: #27ae60;
+            --danger-color: #c0392b;
+            --info-color: #3498db;
+            --warning-color: #f39c12;
+        }
+
+        /* Base e Estrutura */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--app-background); min-height: 100vh; display: flex; flex-direction: column; }
+        .page-wrapper { max-width: 900px; width: 100%; margin: 0 auto; background-color: var(--card-bg); min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        
+        /* Header (Consistente) */
+        .app-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: var(--primary-admin); color: var(--white); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .app-header .logo { font-size: 1.5em; font-weight: 700; }
+        .back-button { background: none; border: none; color: var(--white); font-size: 1.2em; cursor: pointer; transition: color 0.2s ease; padding: 5px; }
+        .back-button:hover { color: var(--warning-color); }
+
+        /* Main Content */
+        .main-content { padding: 25px; }
+        .page-title { font-size: 2em; color: var(--text-dark); margin-bottom: 25px; border-bottom: 2px solid var(--border-light); padding-bottom: 10px; }
+
+        /* Abas de Filtro */
+        .filter-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-light);
+        }
+        .filter-tabs .tab-button {
+            padding: 10px 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-medium);
+            transition: color 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+        .filter-tabs .tab-button.active {
+            color: var(--primary-admin);
+            border-bottom: 3px solid var(--primary-admin);
+        }
+        .filter-tabs .tab-button:hover:not(.active) {
+            color: var(--primary-admin);
+        }
+
+        /* Tabela de Usuários */
+        .user-table-container {
+            overflow-x: auto;
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+        .user-table th, .user-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .user-table th {
+            background-color: var(--stats-bg);
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        .user-table td {
+            color: var(--text-dark);
+        }
+
+        /* Status Tags */
+        .status-tag {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 0.8em;
+            color: var(--white);
+        }
+        .status-active { background-color: var(--success-color); }
+        .status-blocked { background-color: var(--danger-color); }
+        .status-admin { background-color: var(--info-color); }
+
+        /* Ações */
+        .action-btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-right: 5px;
+            transition: background-color 0.2s;
+        }
+        .btn-view { background-color: var(--info-color); color: var(--white); }
+        .btn-view:hover { background-color: #2980b9; }
+        .btn-block { background-color: var(--danger-color); color: var(--white); }
+        .btn-block:hover { background-color: var(--hover-admin); }
+        .btn-unblock { background-color: var(--success-color); color: var(--white); }
+        .btn-unblock:hover { background-color: #2ecc71; }
+
+
+        /* Estilos de Carregamento */
+        .loading-spinner { border: 4px solid rgba(0, 0, 0, 0.1); border-left-color: var(--primary-admin); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+        .error-message { color: var(--danger-color); font-weight: 600; text-align: center; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <!-- Header -->
+        <header class="app-header">
+            <button class="back-button" onclick="navigateTo('admin_dashboard.html')" data-translate-key="backButton">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+            <div class="logo">ADMIN KKR</div>
+            <div></div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <h1 class="page-title" data-translate-key="pageTitle">Gerenciar Usuários</h1>
+            
+            <div class="filter-tabs">
+                <button class="tab-button active" onclick="loadUsers('all', this)" data-translate-key="tabAll">Todos os Usuários</button>
+                <button class="tab-button" onclick="loadUsers('blocked', this)" data-translate-key="tabBlocked">Usuários Bloqueados</button>
+            </div>
+
+            <p id="loadingMessage" class="loading-spinner"></p>
+            <p id="errorMessage" class="error-message hidden"></p>
+            
+            <div class="user-table-container">
+                <table id="userTable" class="user-table hidden">
+                    <thead>
+                        <tr>
+                            <th data-translate-key="headerPhone">Telefone</th>
+                            <th data-translate-key="headerStatus">Status</th>
+                            <th data-translate-key="headerInvitedBy">Convidado Por</th>
+                            <th data-translate-key="headerActions">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <!-- Linhas de usuários serão injetadas aqui -->
+                    </tbody>
+                </table>
+                <p id="noUsersMessage" class="message hidden" data-translate-key="noUsers">Nenhum usuário encontrado.</p>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Script para lógica do Painel Admin EMBUTIDO AQUI -->
+    <script>
+        const BACKEND_URL = 'https://backend-cjl7.onrender.com';
+        const ADMIN_TOKEN_KEY = 'admin_token';
+        let currentFilter = 'all'; // all | blocked
+
+        // Objeto de traduções
+        const translations = {
+            pt: {
+                backButton: 'Voltar', pageTitle: 'Gerenciar Usuários', tabAll: 'Todos os Usuários', tabBlocked: 'Usuários Bloqueados',
+                headerPhone: 'Telefone', headerStatus: 'Status', headerInvitedBy: 'Convidado Por', headerActions: 'Ações',
+                statusActive: 'Ativo', statusBlocked: 'Bloqueado', statusAdmin: 'Admin', noUsers: 'Nenhum usuário encontrado para este filtro.',
+                actionView: 'Ver Detalhes', actionBlock: 'Bloquear', actionUnblock: 'Desbloquear',
+                loadingMessage: 'Carregando usuários...', networkError: 'Erro de rede ou servidor indisponível.',
+                sessionExpired: 'Sessão expirada. Faça login novamente.', confirmBlock: 'Tem certeza que deseja bloquear este usuário?',
+                confirmUnblock: 'Tem certeza que deseja desbloquear este usuário?', actionSuccess: 'Ação realizada com sucesso.',
+                actionFailed: 'Falha ao realizar ação:',
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUsers(currentFilter);
+        });
+        
+        // --- Funções de UI e Navegação ---
+        function navigateTo(page) {
+            if (page === 'admin_dashboard.html') {
+                window.location.href = page;
+            } else {
+                // Para botões de Ação (Ver Detalhes)
+                 window.location.href = page; 
+            }
+        }
+
+        function setActionMessage(id, message, type = 'error', hide = false) {
+            const messageElement = document.getElementById(id);
+            if (messageElement) {
+                messageElement.classList.remove('hidden', 'loading-message', 'info-message', 'error-message');
+                messageElement.textContent = message;
+                messageElement.classList.add(`${type}-message`);
+                if (hide) messageElement.classList.add('hidden');
+            }
+        }
+
+        function clearMessagesAndTable() {
+            document.getElementById('errorMessage').classList.add('hidden');
+            document.getElementById('noUsersMessage').classList.add('hidden');
+            document.getElementById('userTable').classList.add('hidden');
+            document.getElementById('userTableBody').innerHTML = '';
+        }
+
+        function toggleActiveTab(clickedButton) {
+            document.querySelectorAll('.filter-tabs .tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            clickedButton.classList.add('active');
+        }
+
+        // --- Lógica Principal de Carregamento ---
+        async function loadUsers(filter, clickedButton) {
+            currentFilter = filter;
+            clearMessagesAndTable();
+            document.getElementById('loadingMessage').classList.remove('hidden');
+            if (clickedButton) toggleActiveTab(clickedButton);
+
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+            if (!token) {
+                setActionMessage('errorMessage', translations.pt.sessionExpired);
+                document.getElementById('loadingMessage').classList.add('hidden');
+                setTimeout(() => navigateTo('admin_login.html'), 2000);
+                return;
+            }
+
+            const endpoint = filter === 'all' ? `${BACKEND_URL}/api/admin/users` : `${BACKEND_URL}/api/admin/users/blocked`;
+
+            try {
+                const response = await fetch(endpoint, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error("sessionExpired");
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`Status ${response.status}`);
+                }
+
+                const data = await response.json();
+                const users = data.users || []; 
+
+                if (users.length > 0) {
+                    renderUserTable(users);
+                    document.getElementById('userTable').classList.remove('hidden');
+                } else {
+                    document.getElementById('noUsersMessage').classList.remove('hidden');
+                }
+                
+            } catch (error) {
+                if (error.message.includes("sessionExpired")) {
+                    setActionMessage('errorMessage', translations.pt.sessionExpired, 'error');
+                    localStorage.removeItem(ADMIN_TOKEN_KEY);
+                    setTimeout(() => navigateTo('admin_login.html'), 2000);
+                } else {
+                    setActionMessage('errorMessage', `${translations.pt.networkError}: ${error.message}`, 'error');
+                    console.error("Erro ao carregar usuários:", error);
+                }
+            } finally {
+                document.getElementById('loadingMessage').classList.add('hidden');
+            }
+        }
+
+        // --- Renderização da Tabela ---
+        function renderUserTable(users) {
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = ''; // Limpa antes de renderizar
+
+            users.forEach(user => {
+                // Trata Admin e Status
+                let statusText = translations.pt[`status${user.status.charAt(0).toUpperCase() + user.status.slice(1)}`] || user.status;
+                let statusClass = `status-${user.status}`;
+                
+                if (user.isAdmin) {
+                    statusText = translations.pt.statusAdmin;
+                    statusClass = 'status-admin';
+                }
+
+                // Cria a linha
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>
+                        ${user.phoneNumber}
+                        ${user.isAdmin ? `<i class="fas fa-crown" style="color: var(--primary-admin); margin-left: 5px;" title="${translations.pt.statusAdmin}"></i>` : ''}
+                    </td>
+                    <td><span class="status-tag ${statusClass}">${statusText}</span></td>
+                    <td>${user.invitedBy || 'N/A'}</td>
+                    <td>
+                        ${createActionButton('btn-view', 'Ver Detalhes', `navigateTo('admin_user_details.html?id=${user._id}')`)}
+                        ${user.status === 'active' && !user.isAdmin
+                            ? createActionButton('btn-block', 'Bloquear', `toggleUserStatus('${user._id}', 'block', '${user.phoneNumber}')`)
+                            : (user.status === 'blocked' && !user.isAdmin
+                                ? createActionButton('btn-unblock', 'Desbloquear', `toggleUserStatus('${user._id}', 'unblock', '${user.phoneNumber}')`)
+                                : (user.isAdmin ? '' : ''))
+                        }
+                    </td>
+                `;
+            });
+        }
+        
+        function createActionButton(className, textKey, onClickAction) {
+            const text = translations.pt[textKey] || textKey;
+            return `<button class="action-btn ${className}" onclick="${onClickAction}">${text}</button>`;
+        }
+
+
+        // --- Lógica de Ação (Bloquear/Desbloquear) ---
+        async function toggleUserStatus(userId, action, phoneNumber) {
+            const confirmMessageKey = action === 'block' ? 'confirmBlock' : 'confirmUnblock';
+            if (!confirm(translations.pt[confirmMessageKey].replace('este usuário', `o usuário ${phoneNumber}`))) {
+                return;
+            }
+            
+            const endpoint = `${BACKEND_URL}/api/admin/users/${userId}/${action}`;
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+            
+            setActionMessage('errorMessage', `Processando ${action}...`, 'info');
+            
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error("sessionExpired");
+                }
+                
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.message || `Status ${response.status}`);
+                }
+
+                setActionMessage('errorMessage', translations.pt.actionSuccess, 'success', true);
+                loadUsers(currentFilter); // Recarrega a lista para refletir a mudança
+
+            } catch (error) {
+                if (error.message.includes("sessionExpired")) {
+                    setActionMessage('errorMessage', translations.pt.sessionExpired, 'error');
+                    localStorage.removeItem(ADMIN_TOKEN_KEY);
+                    setTimeout(() => navigateTo('admin_login.html'), 2000);
+                } else {
+                    setActionMessage('errorMessage', `${translations.pt.actionFailed} ${error.message}`, 'error');
+                    console.error(`Falha na ação ${action}:`, error);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

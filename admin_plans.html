@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KKR Admin | Gerenciar Planos de Investimento</title>
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome para ícones (CDN) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- CSS EMBUTIDO AQUI (Tema Admin) -->
+    <style>
+        /* Variáveis CSS para o tema Admin (Consistente) */
+        :root {
+            --primary-admin: #c0392b; 
+            --hover-admin: #a93226;
+            --text-dark: #333;
+            --text-medium: #666;
+            --border-light: #e0e0e0;
+            --white: #ffffff;
+            --app-background: #f4f4f7;
+            --card-bg: #fff;
+            --stats-bg: #ecf0f1;
+            --success-color: #27ae60;
+            --danger-color: #c0392b;
+            --info-color: #3498db;
+            --warning-color: #f39c12;
+            --plan-active-color: var(--success-green);
+            --plan-inactive-color: var(--warning-color);
+        }
+
+        /* Base e Estrutura */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--app-background); min-height: 100vh; display: flex; flex-direction: column; }
+        .page-wrapper { max-width: 1000px; width: 100%; margin: 0 auto; background-color: var(--card-bg); min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        
+        /* Header (Consistente) */
+        .app-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: var(--primary-admin); color: var(--white); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .app-header .logo { font-size: 1.5em; font-weight: 700; }
+        .back-button { background: none; border: none; color: var(--white); font-size: 1.2em; cursor: pointer; transition: color 0.2s ease; padding: 5px; }
+        .back-button:hover { color: var(--warning-color); }
+
+        /* Main Content */
+        .main-content { padding: 25px; }
+        .page-title { font-size: 2em; color: var(--text-dark); margin-bottom: 25px; border-bottom: 2px solid var(--border-light); padding-bottom: 10px; }
+        
+        /* Botão Adicionar */
+        .add-plan-btn {
+            background-color: var(--success-color);
+            color: var(--white);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background-color 0.2s;
+        }
+        .add-plan-btn:hover { background-color: #2ecc71; }
+
+        /* Tabela de Planos */
+        .plans-table-container {
+            overflow-x: auto;
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .plans-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+        .plans-table th, .plans-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .plans-table th {
+            background-color: var(--stats-bg);
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        .plans-table td {
+            color: var(--text-dark);
+        }
+        .plan-thumbnail { /* Estilo para a thumbnail na tabela */
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+
+        /* Status Tags */
+        .status-tag {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 0.8em;
+            color: var(--white);
+        }
+        .status-true { background-color: var(--success-color); }
+        .status-false { background-color: var(--warning-color); }
+
+        /* Ações */
+        .action-btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-right: 5px;
+            transition: background-color 0.2s;
+        }
+        .btn-edit { background-color: var(--info-color); color: var(--white); }
+        .btn-edit:hover { background-color: #2980b9; }
+        .btn-delete { background-color: var(--danger-color); color: var(--white); }
+        .btn-delete:hover { background-color: var(--hover-admin); }
+
+        /* Estilos de Carregamento e Mensagens */
+        .loading-spinner { border: 4px solid rgba(0, 0, 0, 0.1); border-left-color: var(--primary-admin); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+        .message { padding: 15px; border-radius: 5px; margin-bottom: 15px; font-weight: 500; text-align: center; }
+        .error-message { color: var(--danger-color); background-color: rgba(192, 57, 43, 0.1); }
+        .success-message { color: var(--success-color); background-color: rgba(39, 174, 96, 0.1); }
+
+        /* Modal (Criação e Edição) */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); 
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background-color: var(--card-bg); border-radius: 10px; padding: 30px; 
+            width: 90%; max-width: 500px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        .modal-close { position: absolute; top: 10px; right: 15px; font-size: 1.5em; cursor: pointer; color: var(--text-medium); }
+        .modal-title { font-size: 1.5em; color: var(--primary-admin); margin-bottom: 20px; border-bottom: 1px solid var(--border-light); padding-bottom: 10px; }
+        .modal-form .input-group { margin-bottom: 15px; text-align: left; }
+        .modal-form label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9em; color: var(--text-dark); }
+        .modal-form input:not([type="file"]), .modal-form select, .modal-form input[type="file"] { /* Aplicando estilo ao input[type="file"] */
+            width: 100%; padding: 10px; border: 1px solid var(--border-light); border-radius: 5px; font-size: 1em;
+        }
+        .modal-form .checkbox-group { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+        .modal-form .checkbox-group input[type="checkbox"] { width: auto; }
+        
+        /* Área de visualização da imagem */
+        #currentImagePreview {
+            max-width: 100px; 
+            max-height: 100px; 
+            object-fit: cover; 
+            border-radius: 5px; 
+            margin-top: 10px;
+            border: 1px solid var(--border-light);
+        }
+        .image-preview-group {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid var(--stats-bg);
+            border-radius: 8px;
+        }
+
+
+        .modal-form button[type="submit"] {
+            width: 100%; padding: 12px; background-color: var(--success-color); color: var(--white); 
+            border: none; border-radius: 5px; margin-top: 20px; font-weight: 600; cursor: pointer;
+        }
+        .modal-form button[type="submit"]:disabled { background-color: var(--text-medium); cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <!-- Header -->
+        <header class="app-header">
+            <button class="back-button" onclick="navigateTo('admin_dashboard.html')" data-translate-key="backButton">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+            <div class="logo">ADMIN KKR</div>
+            <div></div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <h1 class="page-title" data-translate-key="pageTitle">Gerenciar Planos de Investimento</h1>
+            
+            <button class="add-plan-btn" onclick="openCreateModal()" data-translate-key="createButton">
+                <i class="fas fa-plus"></i> Novo Plano
+            </button>
+            
+            <p id="alertMessage" class="message hidden"></p>
+            <p id="loadingMessage" class="loading-spinner"></p>
+
+            <div class="plans-table-container">
+                <table id="plansTable" class="plans-table hidden">
+                    <thead>
+                        <tr>
+                            <th data-translate-key="headerImage">Imagem</th> <!-- NOVA COLUNA -->
+                            <th data-translate-key="headerName">Nome</th>
+                            <th data-translate-key="headerAmount">Preço Fixo (MT)</th>
+                            <th data-translate-key="headerRate">Taxa Diária</th>
+                            <th data-translate-key="headerDuration">Duração (dias)</th>
+                            <th data-translate-key="headerStatus">Status</th>
+                            <th data-translate-key="headerActions">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="plansTableBody">
+                        <!-- Linhas de planos serão injetadas aqui -->
+                    </tbody>
+                </table>
+                <p id="noPlansMessage" class="message hidden" data-translate-key="noPlans">Nenhum plano de investimento encontrado.</p>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modal de Criação/Edição -->
+    <div id="planModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></span>
+            <h2 id="modalTitle" class="modal-title">Novo Plano de Investimento</h2>
+
+            <!-- CRÍTICO: Removido enctype="multipart/form-data" para usar apenas FormData no JS. -->
+            <form id="planForm" class="modal-form"> 
+                <input type="hidden" id="planId" name="planId">
+                <input type="hidden" id="existingImageUrl" name="existingImageUrl"> <!-- Para armazenar a URL atual na edição -->
+                
+                <div class="input-group">
+                    <label for="name" data-translate-key="fieldName">Nome do Plano</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="minAmount" data-translate-key="fieldMinAmount">Preço Fixo de Investimento (MT)</label>
+                    <input type="number" id="minAmount" name="minAmount" step="any" min="1" required>
+                </div>
+                
+                <!-- NOVO CAMPO: Input File para Imagem -->
+                <div class="image-preview-group">
+                    <label for="imageUpload" data-translate-key="fieldImageUpload">Imagem do Plano (Opcional - Máx. 5MB)</label>
+                    <input type="file" id="imageUpload" name="image" accept="image/*" onchange="previewImage(event)">
+                    <p style="font-size: 0.8em; color: var(--text-medium); margin-top: 5px;">Selecione um novo arquivo para substituir.</p>
+                    <img id="currentImagePreview" src="" alt="Pré-visualização da imagem" style="display: none;">
+                </div>
+                <!-- FIM NOVO CAMPO -->
+
+                <div class="input-group">
+                    <label for="dailyProfitRate" data-translate-key="fieldDailyRate">Taxa de Lucro Diário (Ex: 0.02 para 2%)</label>
+                    <input type="number" id="dailyProfitRate" name="dailyProfitRate" step="0.0001" min="0" max="1" required>
+                </div>
+                
+                <div class="input-group" id="isActiveGroup">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="isActive" name="isActive">
+                        <label for="isActive" data-translate-key="fieldIsActive">Plano Ativo (Disponível para usuários)</label>
+                    </div>
+                </div>
+
+                <p id="modalErrorMessage" class="message error-message hidden"></p>
+
+                <button type="submit" id="modalSubmitButton" data-translate-key="submitButton">Criar Plano</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script para lógica do Gerenciamento de Planos EMBUTIDO AQUI -->
+    <script>
+        // Use a URL do backend definida nos outros arquivos admin
+        const BACKEND_URL = 'https://backend-cjl7.onrender.com';
+        const ADMIN_TOKEN_KEY = 'admin_token';
+        
+        // --- Constantes de Tradução ---
+        const translations = {
+            pt: {
+                backButton: 'Voltar', pageTitle: 'Gerenciar Planos de Investimento', createButton: 'Novo Plano',
+                headerImage: 'Imagem', /* NOVO */
+                headerName: 'Nome', headerAmount: 'Preço Fixo (MT)', headerRate: 'Taxa Diária', headerDuration: 'Duração (dias)', headerStatus: 'Status', headerActions: 'Ações',
+                statusTrue: 'Ativo', statusFalse: 'Inativo', noPlans: 'Nenhum plano de investimento encontrado.',
+                actionEdit: 'Editar', actionDelete: 'Excluir',
+                modalCreateTitle: 'Novo Plano de Investimento', modalEditTitle: 'Editar Plano: ',
+                fieldName: 'Nome do Plano', fieldMinAmount: 'Preço Fixo de Investimento (MT)', fieldImageUpload: 'Imagem do Plano (Opcional - Máx. 5MB)', /* MODIFICADO */
+                fieldDailyRate: 'Taxa de Lucro Diário (Ex: 0.02 para 2%)', fieldIsActive: 'Plano Ativo (Disponível para usuários)',
+                submitButtonCreate: 'Criar Plano', submitButtonEdit: 'Salvar Alterações',
+                loadingMessage: 'Carregando planos...',
+                confirmDelete: 'Tem certeza que deseja DELETAR o plano "{name}"? Esta ação não pode ser desfeita e só é possível se não houver investimentos ativos.',
+                confirmUpdate: 'Tem certeza que deseja SALVAR as alterações para o plano "{name}"?',
+                actionSuccess: 'Ação realizada com sucesso.', actionFailed: 'Falha ao realizar ação:',
+                networkError: 'Erro de rede ou servidor indisponível.', sessionExpired: 'Sessão expirada. Faça login novamente.',
+                deleteErrorActiveInvestments: 'Não é possível deletar um plano com investimentos ativos. Desative-o primeiro.',
+                imageUploadFailed: 'Falha no upload da imagem. Tente novamente ou use a URL padrão.',
+            }
+        };
+
+        // --- Variáveis de Estado ---
+        let currentPlans = []; // Para armazenar os dados dos planos
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchPlans();
+            document.getElementById('planForm').addEventListener('submit', handleFormSubmit);
+        });
+
+        // --- Funções de UI e Navegação ---
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+
+        function setActionMessage(id, message, type = 'error', hide = false) {
+            const messageElement = document.getElementById(id);
+            if (messageElement) {
+                messageElement.classList.remove('hidden', 'success-message', 'error-message');
+                messageElement.textContent = message;
+                messageElement.classList.add(`${type}-message`);
+                if (hide) setTimeout(() => messageElement.classList.add('hidden'), 3000);
+            }
+        }
+        
+        function clearModal() {
+            document.getElementById('planForm').reset();
+            document.getElementById('planId').value = '';
+            document.getElementById('existingImageUrl').value = ''; // Limpa a URL existente
+            document.getElementById('imageUpload').value = ''; // Limpa o input file
+            document.getElementById('currentImagePreview').src = ''; // Limpa a pré-visualização
+            document.getElementById('currentImagePreview').style.display = 'none'; // Esconde a pré-visualização
+            document.getElementById('modalErrorMessage').classList.add('hidden');
+            document.getElementById('isActiveGroup').style.display = 'none'; 
+            document.getElementById('modalTitle').textContent = translations.pt.modalCreateTitle;
+            document.getElementById('modalSubmitButton').textContent = translations.pt.submitButtonCreate;
+        }
+
+        function openCreateModal() {
+            clearModal();
+            document.getElementById('planModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('planModal').classList.remove('active');
+        }
+        
+        // Pré-visualização da imagem local antes do upload
+        function previewImage(event) {
+            const preview = document.getElementById('currentImagePreview');
+            const file = event.target.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                 // Mantém a imagem existente se for modo edição
+                 if (document.getElementById('existingImageUrl').value) {
+                     preview.src = document.getElementById('existingImageUrl').value;
+                     preview.style.display = 'block';
+                 } else {
+                     preview.style.display = 'none';
+                 }
+            }
+        }
+
+
+        // --- 1. Fetch e Renderização de Planos (Rota Admin) ---
+        async function fetchPlans() {
+            currentPlans = [];
+            document.getElementById('plansTableBody').innerHTML = '';
+            document.getElementById('loadingMessage').classList.remove('hidden');
+            document.getElementById('plansTable').classList.add('hidden');
+            document.getElementById('noPlansMessage').classList.add('hidden');
+            
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+            if (!token) {
+                setActionMessage('alertMessage', translations.pt.sessionExpired, 'error');
+                document.getElementById('loadingMessage').classList.add('hidden');
+                setTimeout(() => navigateTo('admin_login.html'), 2000);
+                return;
+            }
+
+            try {
+                // Rota de Admin para obter TODOS os planos (ativos e inativos)
+                const endpoint = `${BACKEND_URL}/api/admin/investmentplans`; 
+                
+                const response = await fetch(endpoint, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error("sessionExpired");
+                }
+                
+                if (!response.ok) {
+                    // Tenta ler o JSON de erro antes de lançar
+                    const errorData = await response.json().catch(() => ({ message: `Erro desconhecido (Status ${response.status})` }));
+                    throw new Error(errorData.message || `Falha ao buscar planos (Status: ${response.status})`);
+                }
+
+                const data = await response.json();
+                currentPlans = data.plans || []; 
+
+                if (currentPlans.length > 0) {
+                    renderPlansTable(currentPlans);
+                    document.getElementById('plansTable').classList.remove('hidden');
+                } else {
+                    document.getElementById('noPlansMessage').classList.remove('hidden');
+                }
+                
+            } catch (error) {
+                if (error.message.includes("sessionExpired")) {
+                    setActionMessage('alertMessage', translations.pt.sessionExpired, 'error');
+                    localStorage.removeItem(ADMIN_TOKEN_KEY);
+                    setTimeout(() => navigateTo('admin_login.html'), 2000);
+                } else {
+                    // Exibe a mensagem de erro detalhada
+                    setActionMessage('alertMessage', `${translations.pt.networkError}: ${error.message}`, 'error');
+                    console.error("Erro ao carregar planos:", error);
+                }
+            } finally {
+                document.getElementById('loadingMessage').classList.add('hidden');
+            }
+        }
+
+        function renderPlansTable(plans) {
+            const tbody = document.getElementById('plansTableBody');
+            tbody.innerHTML = ''; 
+
+            plans.forEach(plan => {
+                const statusText = plan.isActive ? translations.pt.statusTrue : translations.pt.statusFalse;
+                const statusClass = `status-${plan.isActive}`;
+                
+                const imageUrl = plan.imageUrl && plan.imageUrl !== 'https://res.cloudinary.com/default-image-url' ? plan.imageUrl : 'https://i.ibb.co/6y45s10/placeholder-image.png';
+
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td><img src="${imageUrl}" alt="${plan.name}" class="plan-thumbnail"></td> <!-- NOVA CÉLULA -->
+                    <td>${plan.name}</td>
+                    <td>${plan.minAmount.toFixed(2)} MT</td> 
+                    <td>${(plan.dailyProfitRate * 100).toFixed(2)}%</td>
+                    <td>${plan.durationDays || 'N/A'}</td>
+                    <td><span class="status-tag ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <button class="action-btn btn-edit" onclick="openEditModal('${plan._id}')" data-translate-key="actionEdit">
+                            <i class="fas fa-edit"></i> ${translations.pt.actionEdit}
+                        </button>
+                        <button class="action-btn btn-delete" onclick="handleDeletePlan('${plan._id}', '${plan.name}')" data-translate-key="actionDelete">
+                            <i class="fas fa-trash-alt"></i> ${translations.pt.actionDelete}
+                        </button>
+                    </td>
+                `;
+            });
+        }
+
+
+        // --- 2. Lógica de Criação e Edição (Modal) ---
+        function openEditModal(planId) {
+            clearModal();
+            const plan = currentPlans.find(p => p._id === planId);
+
+            if (!plan) {
+                setActionMessage('alertMessage', 'Plano não encontrado para edição.', 'error', true);
+                return;
+            }
+            
+            const imageUrl = plan.imageUrl && plan.imageUrl !== 'https://res.cloudinary.com/default-image-url' ? plan.imageUrl : 'https://i.ibb.co/6y45s10/placeholder-image.png';
+
+            // Preenche o formulário com dados do plano
+            document.getElementById('modalTitle').textContent = translations.pt.modalEditTitle + plan.name;
+            document.getElementById('modalSubmitButton').textContent = translations.pt.submitButtonEdit;
+            document.getElementById('planId').value = plan._id;
+            document.getElementById('name').value = plan.name;
+            document.getElementById('minAmount').value = plan.minAmount;
+            document.getElementById('dailyProfitRate').value = plan.dailyProfitRate;
+            document.getElementById('isActive').checked = plan.isActive;
+            
+            // Campos de Imagem
+            document.getElementById('existingImageUrl').value = plan.imageUrl; // Salva a URL existente (para manter se não houver novo upload)
+            document.getElementById('currentImagePreview').src = imageUrl;
+            document.getElementById('currentImagePreview').style.display = 'block';
+
+            // Mostra o campo de Ativo/Inativo para edição
+            document.getElementById('isActiveGroup').style.display = 'block'; 
+
+            document.getElementById('planModal').classList.add('active');
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const planId = document.getElementById('planId').value;
+            const isEditing = !!planId;
+            const button = document.getElementById('modalSubmitButton');
+            
+            // Dados do formulário
+            const minAmount = parseFloat(document.getElementById('minAmount').value);
+            const imageFile = document.getElementById('imageUpload').files[0];
+            
+            // Validações adicionais
+            if (isNaN(minAmount) || minAmount <= 0) {
+                 setActionMessage('modalErrorMessage', 'O preço fixo de investimento deve ser um valor positivo.');
+                 return;
+            }
+            
+            // 1. Cria o objeto FormData
+            const formData = new FormData();
+            formData.append('name', document.getElementById('name').value);
+            formData.append('minAmount', minAmount);
+            formData.append('maxAmount', minAmount); // Repetição para o backend, embora o controller force
+            formData.append('dailyProfitRate', parseFloat(document.getElementById('dailyProfitRate').value));
+            
+            if (isEditing) {
+                formData.append('isActive', document.getElementById('isActive').checked);
+                // Adiciona a URL existente caso não haja um novo upload (para o controller saber o que manter)
+                formData.append('imageUrl', document.getElementById('existingImageUrl').value); 
+            }
+            
+            // Adiciona o arquivo da imagem SELECIONADA (campo 'image' é o nome esperado pelo Multer)
+            if (imageFile) {
+                 formData.append('image', imageFile);
+            }
+            
+            // Limpa a mensagem do modal para nova tentativa
+            document.getElementById('modalErrorMessage').classList.add('hidden');
+
+            if (isEditing && !confirm(translations.pt.confirmUpdate.replace('{name}', document.getElementById('name').value))) return;
+
+            button.disabled = true;
+            button.textContent = isEditing ? 'Salvando...' : 'Criando...';
+
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+            const method = isEditing ? 'PUT' : 'POST';
+            const endpoint = isEditing ? `${BACKEND_URL}/api/admin/investmentplans/${planId}` : `${BACKEND_URL}/api/admin/investmentplans`;
+
+            try {
+                // Ao enviar FormData, NÃO se deve definir o Content-Type, o navegador faz isso automaticamente.
+                const response = await fetch(endpoint, {
+                    method: method,
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        // 'Content-Type': 'multipart/form-data' <-- NÃO INCLUIR!
+                    },
+                    body: formData
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error("sessionExpired");
+                }
+                
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // Trata a mensagem de falha no upload/validação
+                    const errorMessage = data.message || `Falha na requisição (Status: ${response.status})`;
+                    if (errorMessage.includes('Falha no upload da imagem')) {
+                         throw new Error(translations.pt.imageUploadFailed);
+                    }
+                    throw new Error(errorMessage);
+                }
+                
+                // Se a resposta for OK
+                setActionMessage('alertMessage', translations.pt.actionSuccess, 'success', true);
+                closeModal();
+                fetchPlans(); // Recarrega a lista
+                
+            } catch (error) {
+                if (error.message.includes("sessionExpired")) {
+                    localStorage.removeItem(ADMIN_TOKEN_KEY);
+                    setTimeout(() => navigateTo('admin_login.html'), 2000);
+                } else {
+                    // Exibe o erro no modal
+                    setActionMessage('modalErrorMessage', `${translations.pt.actionFailed} ${error.message}`);
+                    console.error(`Falha na ação ${isEditing ? 'Edição' : 'Criação'}:`, error);
+                }
+            } finally {
+                button.disabled = false;
+                button.textContent = isEditing ? translations.pt.submitButtonEdit : translations.pt.submitButtonCreate;
+            }
+        }
+
+        // --- 3. Lógica de Exclusão ---
+        async function handleDeletePlan(planId, planName) {
+            if (!confirm(translations.pt.confirmDelete.replace('{name}', planName))) {
+                return;
+            }
+            
+            setActionMessage('alertMessage', `Deletando plano ${planName}...`, 'error');
+
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+            const endpoint = `${BACKEND_URL}/api/admin/investmentplans/${planId}`;
+            
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error("sessionExpired");
+                }
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: `Erro desconhecido (Status ${response.status})` }));
+                    
+                    if (response.status === 400 && errorData.message.includes('investimentos ativos')) {
+                        throw new Error(translations.pt.deleteErrorActiveInvestments);
+                    }
+                    throw new Error(errorData.message || `Falha na requisição (Status: ${response.status})`);
+                }
+
+                setActionMessage('alertMessage', translations.pt.actionSuccess, 'success', true);
+                fetchPlans(); // Recarrega a lista
+                
+            } catch (error) {
+                if (error.message.includes("sessionExpired")) {
+                    localStorage.removeItem(ADMIN_TOKEN_KEY);
+                    setTimeout(() => navigateTo('admin_login.html'), 2000);
+                } else {
+                    // Trata o erro de exclusão com investimentos ativos
+                    const finalErrorMessage = error.message.includes(translations.pt.deleteErrorActiveInvestments) ? translations.pt.deleteErrorActiveInvestments : `${translations.pt.actionFailed} ${error.message}`;
+                    setActionMessage('alertMessage', finalErrorMessage, 'error');
+                    console.error(`Falha na exclusão:`, error);
+                }
+            }
+        }
+        
+        // Expõe funções para o HTML
+        window.openCreateModal = openCreateModal;
+        window.openEditModal = openEditModal;
+        window.closeModal = closeModal;
+        window.handleDeletePlan = handleDeletePlan;
+        window.previewImage = previewImage; // NOVO
+
+    </script>
+</body>
+</html>

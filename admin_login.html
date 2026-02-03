@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KKR Credit | Login Admin</title>
+    <!-- Favicon - usar um ícone diferente para Admin? -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS EMBUTIDO AQUI (Design de Admin com acento forte) -->
+    <style>
+        /* Variáveis CSS para o tema Admin */
+        :root {
+            --primary-admin: #c0392b; /* Vermelho/Marrom Escuro para Admin */
+            --light-admin: #e74c3c;
+            --hover-admin: #a93226;
+            --text-dark: #333;
+            --text-medium: #666;
+            --border-light: #e0e0e0;
+            --white-transparent-60: rgba(255, 255, 255, 0.6); 
+            --white-transparent-80: rgba(255, 255, 255, 0.8); 
+            --error-red: #e74c3c;
+            --white: #ffffff;
+            --bg-dark: #34495e; /* Fundo mais sério */
+        }
+
+        /* Reset básico e fontes */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            background-color: var(--bg-dark); /* Fundo Admin */
+        }
+
+        /* Fundo desfocado (Usando a imagem padrão, mas escurecida) */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://i.ibb.co/DHK1ZFVC/copilot-image-1769980471288.png'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(5px) brightness(0.6); /* Mais escuro */
+            z-index: -2;
+            transform: scale(1.02);
+        }
+
+        /* Contêiner principal do formulário */
+        .admin-container {
+            max-width: 400px;
+            width: 100%;
+            background: var(--white-transparent-60); 
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4); 
+            text-align: center;
+            backdrop-filter: blur(8px); 
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 10; 
+            border-top: 5px solid var(--primary-admin); /* Borda de destaque Admin */
+        }
+
+        .login-card-content {
+            padding: 30px 40px;
+        }
+
+        /* Logo/Título */
+        .logo {
+            margin-bottom: 20px;
+        }
+        .logo h2 {
+            font-size: 2em;
+            color: var(--primary-admin);
+            font-weight: 700;
+        }
+        .logo p {
+            font-size: 0.9em;
+            color: var(--text-medium);
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        /* Grupo de input */
+        .input-group {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            font-size: 0.95em;
+            color: var(--text-dark);
+            background-color: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease-out;
+            z-index: 1;
+        }
+        .input-group input:focus {
+            border-color: var(--primary-admin); 
+            outline: none;
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15),
+                        0 0 0 6px rgba(192, 57, 43, 0.1); 
+            background-color: var(--white);
+        }
+
+        /* Botão primário */
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary-admin);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--light-admin);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        /* Mensagens de erro */
+        .error-message {
+            color: var(--error-red);
+            font-size: 0.85em;
+            margin-top: -8px;
+            margin-bottom: 12px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        /* Link de Retorno */
+        .return-link {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: var(--text-medium);
+        }
+
+        .return-link a {
+            color: var(--primary-admin);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .return-link a:hover {
+            color: var(--hover-admin);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="login-card-content">
+            <div class="logo">
+                <h2>KKR Credit</h2>
+                <p>Painel Administrativo</p>
+            </div>
+            
+            <form id="adminLoginForm">
+                <div class="input-group">
+                    <label for="phoneNumber">Número de Telefone</label>
+                    <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="Número de Admin (Ex: 841234567)" required pattern="^\d{9}$" title="Por favor, insira um número de telefone de 9 dígitos.">
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" name="password" placeholder="Sua senha de admin" required minlength="6">
+                </div>
+
+                <p id="error-message" class="error-message"></p>
+                
+                <button type="submit" class="btn-primary">Acessar Painel</button>
+            </form>
+
+            <p class="return-link">
+                <a href="login.html">← Retornar ao Login do Usuário</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Script para lógica do formulário de Login Admin EMBUTIDO AQUI -->
+    <script>
+        // ATENÇÃO: Se o seu backend estiver em uma URL diferente, altere AQUI!
+        const BACKEND_URL = 'https://backend-cjl7.onrender.com';
+        
+        document.getElementById('adminLoginForm').addEventListener('submit', async (event) => {
+            event.preventDefault(); 
+
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+            const button = event.target.querySelector('button[type="submit"]');
+
+            errorMessage.textContent = ''; 
+            button.disabled = true;
+            button.textContent = 'Verificando...';
+
+            try {
+                // Usa o endpoint de login padrão, mas a verificação de admin será feita no Dashboard
+                const response = await fetch(`${BACKEND_URL}/api/login`, { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        phoneNumber,
+                        password
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // 1. Armazena o token
+                    localStorage.setItem('admin_token', data.token);
+                    
+                    // 2. VERIFICAÇÃO CRÍTICA: Confirma se o usuário logado é um Admin.
+                    if (data.user.isAdmin) {
+                        alert('Login de Admin bem-sucedido! Redirecionando para o Dashboard.');
+                        // Redireciona para o dashboard admin (Próxima página a ser construída)
+                        window.location.href = 'admin_dashboard.html'; 
+                    } else {
+                        // Se as credenciais estiverem corretas, mas não for admin, rejeita.
+                        localStorage.removeItem('admin_token');
+                        errorMessage.textContent = 'Acesso negado. Esta conta não é um administrador.';
+                    }
+
+                } else {
+                    errorMessage.textContent = data.message || 'Credenciais inválidas.';
+                }
+            } catch (error) {
+                console.error('Erro na requisição de login:', error);
+                errorMessage.textContent = 'Ocorreu um erro de rede ou o servidor está indisponível.';
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Acessar Painel';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KKR Admin | Detalhes do Usuário</title>
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome para ícones (CDN) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- CSS EMBUTIDO AQUI (Tema Admin) -->
+    <style>
+        /* Variáveis CSS para o tema Admin (Consistente) */
+        :root {
+            --primary-admin: #c0392b; 
+            --hover-admin: #a93226;
+            --text-dark: #333;
+            --text-medium: #666;
+            --border-light: #e0e0e0;
+            --white: #ffffff;
+            --app-background: #f4f4f7;
+            --card-bg: #fff;
+            --success-color: #27ae60;
+            --danger-color: #c0392b;
+            --info-color: #3498db;
+            --warning-color: #f39c12;
+        }
+
+        /* Base e Estrutura */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--app-background); min-height: 100vh; display: flex; flex-direction: column; }
+        .page-wrapper { max-width: 900px; width: 100%; margin: 0 auto; background-color: var(--card-bg); min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        
+        /* Header (Consistente) */
+        .app-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: var(--primary-admin); color: var(--white); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .app-header .logo { font-size: 1.5em; font-weight: 700; }
+        .back-button { background: none; border: none; color: var(--white); font-size: 1.2em; cursor: pointer; transition: color 0.2s ease; padding: 5px; }
+        .back-button:hover { color: var(--warning-color); }
+
+        /* Main Content */
+        .main-content { padding: 25px; }
+        .page-title { font-size: 2em; color: var(--text-dark); margin-bottom: 25px; border-bottom: 2px solid var(--border-light); padding-bottom: 10px; }
+
+        /* Detalhes do Usuário */
+        .details-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .user-info-card, .action-card, .history-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .user-info-card {
+             grid-column: span 2; /* Ocupa as duas colunas */
+        }
+
+        /* Títulos de Cartão */
+        .card-title {
+            font-size: 1.3em;
+            color: var(--primary-admin);
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed var(--border-light);
+        }
+
+        /* Lista de Detalhes */
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border-light);
+            font-size: 0.95em;
+        }
+        .detail-item:last-child { border-bottom: none; }
+        .detail-item .label { color: var(--text-medium); font-weight: 500; }
+        .detail-item .value { color: var(--text-dark); font-weight: 600; }
+        .status-tag { padding: 5px 10px; border-radius: 15px; font-weight: 600; font-size: 0.8em; color: var(--white); }
+        .status-active { background-color: var(--success-color); }
+        .status-blocked { background-color: var(--danger-color); }
+
+        /* Ações e Formulário de Senha */
+        .action-buttons { margin-bottom: 20px; }
+        .action-btn { 
+            padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: 600; margin-right: 10px; transition: background-color 0.2s; 
+        }
+        .btn-block { background-color: var(--danger-color); color: var(--white); }
+        .btn-block:hover { background-color: var(--hover-admin); }
+        .btn-unblock { background-color: var(--success-color); color: var(--white); }
+        .btn-unblock:hover { background-color: #2ecc71; }
+        
+        .password-form input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-light);
+            border-radius: 5px;
+        }
+        .password-form button {
+            background-color: var(--info-color); color: var(--white); padding: 10px; border: none; border-radius: 5px; cursor: pointer; width: 100%;
+        }
+
+        /* Histórico Rápido */
+        .history-card { grid-column: span 2; }
+        .history-list { list-style: none; padding: 0; }
+        .history-item { 
+            display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--border-light); font-size: 0.9em;
+        }
+        .history-item:last-child { border-bottom: none; }
+        .history-item .type { color: var(--info-color); font-weight: 600; }
+        .history-item .amount { color: var(--success-color); font-weight: 600; }
+        .history-item .amount.neg { color: var(--danger-color); }
+
+
+        /* Estilos de Carregamento e Mensagens */
+        .loading-spinner { border: 4px solid rgba(0, 0, 0, 0.1); border-left-color: var(--primary-admin); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+        .message { padding: 10px; border-radius: 5px; margin-bottom: 15px; font-weight: 500; }
+        .error-message { color: var(--danger-color); background-color: rgba(192, 57, 43, 0.1); }
+        .success-message { color: var(--success-color); background-color: rgba(39, 174, 96, 0.1); }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <!-- Header -->
+        <header class="app-header">
+            <button class="back-button" onclick="navigateTo('admin_users.html')" data-translate-key="backButton">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+            <div class="logo">ADMIN KKR</div>
+            <div></div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <h1 class="page-title" data-translate-key="pageTitle">Detalhes do Usuário: <span id="userPhoneNumberTitle">...</span></h1>
+            
+            <p id="loadingMessage" class="loading-spinner"></p>
+            <p id="alertMessage" class="message hidden"></p>
+
+            <div id="userDetailsContent" class="details-container hidden">
+
+                <!-- 1. Informações Principais -->
+                <div class="user-info-card">
+                    <h2 class="card-title" data-translate-key="infoTitle">Informações Básicas</h2>
+                    
+                    <div class="action-buttons" id="actionButtonsContainer">
+                        <!-- Botões de Bloquear/Desbloquear serão injetados aqui -->
+                    </div>
+
+                    <div class="detail-item">
+                        <span class="label" data-translate-key="detailID">ID do Usuário:</span>
+                        <span class="value" id="userID">...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label" data-translate-key="detailPhone">Telefone:</span>
+                        <span class="value" id="userPhone">...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label" data-translate-key="detailStatus">Status:</span>
+                        <span class="value" id="userStatus">...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label" data-translate-key="detailBalance">Saldo Principal:</span>
+                        <span class="value" id="userMainBalance">...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label" data-translate-key="detailBonus">Saldo Bônus:</span>
+                        <span class="value" id="userBonusBalance">...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label" data-translate-key="detailReferral">Código de Convite:</span>
+                        <span class="value" id="userReferralCode">...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label" data-translate-key="detailInvitedBy">Convidado Por:</span>
+                        <span class="value" id="userInvitedBy">...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label" data-translate-key="detailVisitorID">Visitor ID:</span>
+                        <span class="value" id="userVisitorID">...</span>
+                    </div>
+                </div>
+
+                <!-- 2. Alterar Senha -->
+                <div class="action-card">
+                    <h2 class="card-title" data-translate-key="passwordTitle">Alterar Senha</h2>
+                    <form id="passwordForm" class="password-form">
+                        <input type="password" id="newPassword" placeholder="Nova Senha (mín. 6 caracteres)" required minlength="6">
+                        <p id="passwordFormMessage" class="message hidden"></p>
+                        <button type="submit" data-translate-key="changePasswordButton">Alterar Senha</button>
+                    </form>
+                </div>
+
+                <!-- 3. Histórico de Referidos -->
+                <div class="action-card">
+                    <h2 class="card-title" data-translate-key="referredTitle">Referidos Diretos</h2>
+                    <ul id="referredUsersList" class="history-list">
+                        <!-- Referidos serão injetados aqui -->
+                    </ul>
+                    <p id="noReferredMessage" class="message hidden" data-translate-key="noReferred">Nenhum referido encontrado.</p>
+                </div>
+
+                <!-- 4. Histórico de Transações (Completo) -->
+                <div class="history-card">
+                    <h2 class="card-title" data-translate-key="transactionTitle">Histórico de Transações Recentes</h2>
+                    <ul id="transactionHistoryList" class="history-list">
+                        <!-- Transações serão injetadas aqui -->
+                    </ul>
+                    <p id="noTransactionMessage" class="message hidden" data-translate-key="noTransactions">Nenhuma transação registrada.</p>
+                </div>
+
+            </div> <!-- Fim do details-container -->
+        </main>
+    </div>
+
+    <!-- Script para lógica do Detalhes do Usuário EMBUTIDO AQUI -->
+    <script>
+        const BACKEND_URL = 'https://backend-cjl7.onrender.com';
+        const ADMIN_TOKEN_KEY = 'admin_token';
+        let currentUserID = null;
+
+        // Objeto de traduções
+        const translations = {
+            pt: {
+                backButton: 'Voltar', pageTitle: 'Detalhes do Usuário:', infoTitle: 'Informações Básicas',
+                detailID: 'ID do Usuário', detailPhone: 'Telefone', detailStatus: 'Status', detailBalance: 'Saldo Principal',
+                detailBonus: 'Saldo Bônus', detailReferral: 'Cód. Convite', detailInvitedBy: 'Convidado Por', detailVisitorID: 'Visitor ID',
+                passwordTitle: 'Alterar Senha', changePasswordButton: 'Alterar Senha', referredTitle: 'Referidos Diretos',
+                transactionTitle: 'Histórico de Transações Recentes', loadingMessage: 'Carregando detalhes do usuário...',
+                noReferred: 'Nenhum referido encontrado.', noTransactions: 'Nenhuma transação registrada.',
+                statusActive: 'Ativo', statusBlocked: 'Bloqueado', statusAdmin: 'Admin',
+                actionBlock: 'Bloquear', actionUnblock: 'Desbloquear',
+                typeDeposit: 'Depósito', typeWithdrawal: 'Saque', typeInvestment: 'Investimento',
+                confirmBlock: 'Tem certeza que deseja BLOQUEAR o usuário {phone}?', confirmUnblock: 'Tem certeza que deseja DESBLOQUEAR o usuário {phone}?',
+                actionSuccess: 'Ação realizada com sucesso.', actionFailed: 'Falha ao realizar ação:', passwordSuccess: 'Senha alterada com sucesso.',
+                invalidID: 'ID de usuário inválido. Retornando...', networkError: 'Erro de rede ou servidor indisponível.',
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('id');
+            if (userId) {
+                currentUserID = userId;
+                fetchUserDetails(userId);
+            } else {
+                setActionMessage('alertMessage', translations.pt.invalidID, 'error');
+                setTimeout(() => navigateTo('admin_users.html'), 2000);
+            }
+
+            document.getElementById('passwordForm').addEventListener('submit', handlePasswordChange);
+        });
+        
+        // --- Funções de UI e Navegação ---
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+        
+        function setActionMessage(id, message, type = 'error', hide = false) {
+            const messageElement = document.getElementById(id);
+            if (messageElement) {
+                messageElement.classList.remove('hidden', 'success-message', 'error-message');
+                messageElement.textContent = message;
+                messageElement.classList.add(`${type}-message`);
+                if (hide) setTimeout(() => messageElement.classList.add('hidden'), 3000);
+            }
+        }
+
+        function createActionButton(className, textKey, onClickAction) {
+            const text = translations.pt[textKey] || textKey;
+            return `<button class="action-btn ${className}" onclick="${onClickAction}">${text}</button>`;
+        }
+
+
+        // --- Função Principal: Busca Detalhes do Usuário ---
+        async function fetchUserDetails(userId) {
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+            const loadingMessage = document.getElementById('loadingMessage');
+            loadingMessage.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/admin/users/${userId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error("sessionExpired");
+                }
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `Status ${response.status}`);
+                }
+
+                const data = await response.json();
+                const user = data.user; 
+                
+                renderUserDetails(user);
+                document.getElementById('userDetailsContent').classList.remove('hidden');
+
+            } catch (error) {
+                loadingMessage.classList.add('hidden');
+                if (error.message.includes("sessionExpired")) {
+                    setActionMessage('alertMessage', translations.pt.sessionExpired, 'error');
+                    localStorage.removeItem(ADMIN_TOKEN_KEY);
+                    setTimeout(() => navigateTo('admin_login.html'), 2000);
+                } else {
+                    setActionMessage('alertMessage', `${translations.pt.networkError}: ${error.message}`, 'error');
+                    console.error("Erro ao carregar detalhes:", error);
+                }
+            } finally {
+                loadingMessage.classList.add('hidden');
+            }
+        }
+
+        // --- Renderização de Detalhes ---
+        function renderUserDetails(user) {
+            const { phoneNumber, balance, bonusBalance, status, referralCode, invitedBy, visitorId, activeInvestments, depositHistory, withdrawalHistory, referredUsers } = user;
+
+            // Título
+            document.getElementById('userPhoneNumberTitle').textContent = phoneNumber;
+
+            // Status
+            const statusKey = `status${status.charAt(0).toUpperCase() + status.slice(1)}`;
+            const statusText = translations.pt[statusKey] || status;
+            const statusHTML = `<span class="status-tag status-${status}">${statusText}</span>`;
+            document.getElementById('userStatus').innerHTML = statusHTML;
+
+            // Informações Básicas
+            document.getElementById('userID').textContent = user._id;
+            document.getElementById('userPhone').textContent = phoneNumber;
+            document.getElementById('userMainBalance').textContent = `${balance.toFixed(2)} MT`;
+            document.getElementById('userBonusBalance').textContent = `${bonusBalance.toFixed(2)} MT`;
+            document.getElementById('userReferralCode').textContent = referralCode || 'N/A';
+            document.getElementById('userInvitedBy').textContent = invitedBy || 'N/A';
+            document.getElementById('userVisitorID').textContent = visitorId;
+
+            // Botões de Ação
+            renderActionButtons(user);
+
+            // Histórico (Consolidado e Referidos)
+            renderReferredUsers(referredUsers);
+            renderTransactionHistory(depositHistory, withdrawalHistory, activeInvestments);
+        }
+
+        // --- Renderiza Botões de Bloqueio/Desbloqueio ---
+        function renderActionButtons(user) {
+            const container = document.getElementById('actionButtonsContainer');
+            container.innerHTML = '';
+            
+            if (user.isAdmin) return; // Não permite bloquear admin
+
+            if (user.status === 'active') {
+                container.innerHTML += createActionButton('btn-block', 'Bloquear', `handleToggleStatus('${user._id}', 'block', '${user.phoneNumber}')`);
+            } else if (user.status === 'blocked') {
+                container.innerHTML += createActionButton('btn-unblock', 'Desbloquear', `handleToggleStatus('${user._id}', 'unblock', '${user.phoneNumber}')`);
+            }
+        }
+
+        // --- Renderiza Lista de Referidos ---
+        function renderReferredUsers(referredUsers) {
+            const list = document.getElementById('referredUsersList');
+            list.innerHTML = '';
+
+            if (referredUsers && referredUsers.length > 0) {
+                referredUsers.forEach(ref => {
+                    const statusClass = `status-${ref.status}`;
+                    const statusText = translations.pt[`status${ref.status.charAt(0).toUpperCase() + ref.status.slice(1)}`];
+                    
+                    const li = document.createElement('li');
+                    li.className = 'history-item';
+                    li.innerHTML = `
+                        <span>${ref.phoneNumber}</span>
+                        <span class="status-tag ${statusClass}">${statusText}</span>
+                    `;
+                    list.appendChild(li);
+                });
+            } else {
+                document.getElementById('noReferredMessage').classList.remove('hidden');
+            }
+        }
+
+        // --- Renderiza Histórico Consolidado (Saque, Depósito, Investimento) ---
+        function renderTransactionHistory(deposits, withdrawals, investments) {
+            const list = document.getElementById('transactionHistoryList');
+            list.innerHTML = '';
+
+            const transactions = [
+                ...deposits.map(d => ({ date: new Date(d.requestDate), type: 'Deposit', amount: d.amount, status: d.status })),
+                ...withdrawals.map(w => ({ date: new Date(w.requestDate), type: 'Withdrawal', amount: w.amount * -1, status: w.status })),
+                ...investments.map(i => ({ date: new Date(i.startDate), type: 'Investment', amount: i.investedAmount * -1, status: i.status })),
+            ];
+
+            transactions.sort((a, b) => b.date - a.date); // Mais recente primeiro
+
+            if (transactions.length > 0) {
+                transactions.slice(0, 10).forEach(tx => { // Limita a 10 transações
+                    const li = document.createElement('li');
+                    const amountClass = tx.amount >= 0 ? 'positive' : 'negative';
+                    const amountText = `${tx.amount.toFixed(2)} MT`;
+                    const typeText = translations.pt[`type${tx.type}`] || tx.type;
+                    const dateText = tx.date.toLocaleString('pt-BR');
+
+                    li.className = 'history-item';
+                    li.innerHTML = `
+                        <span>${typeText} (${dateText})</span>
+                        <span class="amount ${amountClass}">${amountText}</span>
+                    `;
+                    list.appendChild(li);
+                });
+            } else {
+                document.getElementById('noTransactionMessage').classList.remove('hidden');
+            }
+        }
+
+        // --- Ações: Bloquear/Desbloquear/Mudar Senha ---
+
+        async function handleToggleStatus(userId, action, phoneNumber) {
+            const confirmMessageKey = action === 'block' ? 'confirmBlock' : 'confirmUnblock';
+            if (!confirm(translations.pt[confirmMessageKey].replace('{phone}', phoneNumber))) {
+                return;
+            }
+            
+            const endpoint = `${BACKEND_URL}/api/admin/users/${userId}/${action}`;
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+            
+            setActionMessage('alertMessage', `Processando ${action}...`, 'info');
+            
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.message || `Status ${response.status}`);
+                }
+
+                setActionMessage('alertMessage', translations.pt.actionSuccess, 'success', true);
+                fetchUserDetails(userId); // Recarrega os detalhes para refletir o novo status
+
+            } catch (error) {
+                if (error.message.includes("sessionExpired")) {
+                    // Redirecionamento em caso de sessão expirada
+                    localStorage.removeItem(ADMIN_TOKEN_KEY);
+                    setTimeout(() => navigateTo('admin_login.html'), 2000);
+                } else {
+                    setActionMessage('alertMessage', `${translations.pt.actionFailed} ${error.message}`, 'error', true);
+                    console.error(`Falha na ação ${action}:`, error);
+                }
+            }
+        }
+
+        async function handlePasswordChange(event) {
+            event.preventDefault();
+            const passwordForm = document.getElementById('passwordForm');
+            const newPassword = document.getElementById('newPassword').value;
+            const formMessage = document.getElementById('passwordFormMessage');
+
+            formMessage.classList.add('hidden');
+            if (newPassword.length < 6) {
+                setActionMessage('passwordFormMessage', 'A senha deve ter pelo menos 6 caracteres.', 'error');
+                return;
+            }
+
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+            
+            setActionMessage('passwordFormMessage', 'Alterando senha...', 'info');
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/admin/users/${currentUserID}/change-password`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ newPassword })
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.message || `Status ${response.status}`);
+                }
+
+                setActionMessage('passwordFormMessage', translations.pt.passwordSuccess, 'success', true);
+                passwordForm.reset();
+
+            } catch (error) {
+                 if (error.message.includes("sessionExpired")) {
+                     localStorage.removeItem(ADMIN_TOKEN_KEY);
+                     setTimeout(() => navigateTo('admin_login.html'), 2000);
+                 } else {
+                    setActionMessage('passwordFormMessage', `${translations.pt.actionFailed} ${error.message}`, 'error');
+                 }
+            }
+        }
+        
+        // Expõe funções de ação para o HTML
+        window.handleToggleStatus = handleToggleStatus;
+
+    </script>
+</body>
+</html>

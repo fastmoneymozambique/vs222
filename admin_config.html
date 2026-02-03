@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KKR Admin | Configurações Globais</title>
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome para ícones (CDN) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- CSS EMBUTIDO AQUI (Tema Admin) -->
+    <style>
+        /* Variáveis CSS para o tema Admin (Consistente) */
+        :root {
+            --primary-admin: #c0392b; 
+            --hover-admin: #a93226;
+            --text-dark: #333;
+            --text-medium: #666;
+            --border-light: #e0e0e0;
+            --white: #ffffff;
+            --app-background: #f4f4f7;
+            --card-bg: #fff;
+            --stats-bg: #ecf0f1;
+            --success-color: #27ae60;
+            --danger-color: #c0392b;
+            --info-color: #3498db;
+            --warning-color: #f39c12;
+        }
+
+        /* Base e Estrutura */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--app-background); min-height: 100vh; display: flex; flex-direction: column; }
+        .page-wrapper { max-width: 900px; width: 100%; margin: 0 auto; background-color: var(--card-bg); min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        
+        /* Header (Consistente) */
+        .app-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: var(--primary-admin); color: var(--white); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .app-header .logo { font-size: 1.5em; font-weight: 700; }
+        .back-button { background: none; border: none; color: var(--white); font-size: 1.2em; cursor: pointer; transition: color 0.2s ease; padding: 5px; }
+        .back-button:hover { color: var(--warning-color); }
+
+        /* Main Content */
+        .main-content { padding: 25px; }
+        .page-title { font-size: 2em; color: var(--text-dark); margin-bottom: 25px; border-bottom: 2px solid var(--border-light); padding-bottom: 10px; }
+        
+        /* Formulário de Configuração */
+        .config-form-container {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .config-section-title {
+            font-size: 1.4em;
+            color: var(--info-color);
+            margin-top: 20px;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed var(--border-light);
+        }
+        .config-section-title:first-child {
+            margin-top: 0;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid var(--stats-bg);
+            border-radius: 8px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 0.9em;
+            color: var(--text-dark);
+        }
+
+        .input-group input[type="text"],
+        .input-group input[type="number"],
+        .input-group input[type="time"] { /* Adicionado input[type="time"] */
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-light);
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .input-group input[type="number"] {
+            font-family: 'Courier New', monospace; /* Fonte mono para valores numéricos */
+            font-weight: 700;
+        }
+        
+        .input-group input[type="time"] { /* Estilo específico para hora */
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+        }
+
+        /* Checkbox Switch */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--danger-color);
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: var(--success-color);
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .switch-label {
+            font-size: 1em;
+            font-weight: 700;
+            color: var(--danger-color);
+        }
+        input:checked ~ .switch-label {
+            color: var(--success-color);
+        }
+
+        /* Botão Salvar */
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-admin);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: background-color 0.2s;
+        }
+        .submit-btn:hover { background-color: var(--hover-admin); }
+        .submit-btn:disabled { background-color: var(--text-medium); cursor: not-allowed; }
+
+        /* Estilos de Carregamento e Mensagens */
+        .loading-spinner { border: 4px solid rgba(0, 0, 0, 0.1); border-left-color: var(--primary-admin); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+        .message { padding: 15px; border-radius: 5px; margin-bottom: 15px; font-weight: 500; text-align: center; }
+        .error-message { color: var(--danger-color); background-color: rgba(192, 57, 43, 0.1); }
+        .success-message { color: var(--success-color); background-color: rgba(39, 174, 96, 0.1); }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <!-- Header -->
+        <header class="app-header">
+            <button class="back-button" onclick="navigateTo('admin_dashboard.html')" data-translate-key="backButton">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+            <div class="logo">ADMIN KKR</div>
+            <div></div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <h1 class="page-title" data-translate-key="pageTitle">Configurações Globais</h1>
+            
+            <p id="alertMessage" class="message hidden"></p>
+            <p id="loadingMessage" class="loading-spinner"></p>
+
+            <div id="configFormContainer" class="config-form-container hidden">
+                <form id="adminConfigForm">
+                    
+                    <!-- Configurações de Promoção e Referência -->
+                    <h2 class="config-section-title" data-translate-key="sectionPromotion">Configurações de Promoção</h2>
+
+                    <div class="input-group">
+                        <div class="switch-container">
+                            <label for="isPromotionActive" data-translate-key="fieldPromotionStatus">Status da Promoção de Indicação</label>
+                            <label class="switch">
+                                <input type="checkbox" id="isPromotionActive" name="isPromotionActive">
+                                <span class="slider"></span>
+                            </label>
+                            <span class="switch-label" id="promotionStatusLabel" data-translate-key="statusInactive">INATIVA</span>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="commissionOnPlanActivation" data-translate-key="fieldCommissionActivation">Comissão na Ativação de Plano (Taxa Decimal - Ex: 0.05 para 5%)</label>
+                        <input type="number" id="commissionOnPlanActivation" name="commissionOnPlanActivation" step="0.001" min="0" max="1" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="commissionOnDailyProfit" data-translate-key="fieldCommissionDaily">Comissão no Lucro Diário do Referido (Taxa Decimal - Ex: 0.01 para 1%)</label>
+                        <input type="number" id="commissionOnDailyProfit" name="commissionOnDailyProfit" step="0.001" min="0" max="1" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="referralBonusAmount" data-translate-key="fieldReferralBonusAmount">Bônus Fixo por Meta de Referidos (MT)</label>
+                        <input type="number" id="referralBonusAmount" name="referralBonusAmount" step="any" min="0" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="referralRequiredInvestedCount" data-translate-key="fieldRequiredInvestedCount">Qtd. de Referidos *Investidores* para o Bônus Fixo</label>
+                        <input type="number" id="referralRequiredInvestedCount" name="referralRequiredInvestedCount" step="1" min="0" required>
+                    </div>
+
+                    <!-- Configurações de Depósito e Pagamento -->
+                    <h2 class="config-section-title" data-translate-key="sectionPayment">Configurações de Pagamento e Depósito</h2>
+
+                    <div class="input-group">
+                        <label for="minDepositAmount" data-translate-key="fieldMinDeposit">Valor Mínimo de Depósito (MT)</label>
+                        <input type="number" id="minDepositAmount" name="minDepositAmount" step="any" min="1" required>
+                    </div>
+                    
+                    <!-- NOVO: Configurações de Saque (Horário e Limites) -->
+                    <h2 class="config-section-title" data-translate-key="sectionWithdrawal">Controle de Saque</h2>
+                    <p style="font-size: 0.9em; color: var(--text-medium); margin-bottom: 10px;">Define a janela de tempo e os limites para a solicitação de saques pelos usuários.</p>
+
+                    <!-- Limites de Saque -->
+                    <div class="input-group">
+                        <label for="minWithdrawalAmount" data-translate-key="fieldMinWithdrawal">Valor Mínimo de Saque (MT)</label>
+                        <input type="number" id="minWithdrawalAmount" name="minWithdrawalAmount" step="any" min="1" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="maxWithdrawalAmount" data-translate-key="fieldMaxWithdrawal">Valor Máximo de Saque (MT)</label>
+                        <input type="number" id="maxWithdrawalAmount" name="maxWithdrawalAmount" step="any" min="1" required>
+                    </div>
+                    
+                    <!-- Horário de Saque -->
+                    <h3 class="config-section-title" style="font-size: 1.2em; margin-top: 20px;" data-translate-key="sectionWithdrawalHours">Horário de Saque</h3>
+                    <div class="input-group">
+                        <label for="withdrawalStartTime" data-translate-key="fieldStartTime">Hora de Início (Ex: 08:00)</label>
+                        <input type="time" id="withdrawalStartTime" name="withdrawalStartTime" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="withdrawalEndTime" data-translate-key="fieldEndTime">Hora de Fim (Ex: 18:00)</label>
+                        <input type="time" id="withdrawalEndTime" name="withdrawalEndTime" required>
+                    </div>
+                    <!-- FIM NOVO: Configurações de Saque -->
+
+                    <h3 class="config-section-title" style="font-size: 1.2em; margin-top: 20px;" data-translate-key="sectionMpesa">Detalhes M-Pesa</h3>
+                    <div class="input-group">
+                        <label for="mpesaRecipientName" data-translate-key="fieldRecipientName">Nome do Beneficiário M-Pesa</label>
+                        <input type="text" id="mpesaRecipientName" name="mpesaRecipientName" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="mpesaDepositNumber" data-translate-key="fieldDepositNumber">Número de Depósito M-Pesa</label>
+                        <input type="text" id="mpesaDepositNumber" name="mpesaDepositNumber" required>
+                    </div>
+
+                    <h3 class="config-section-title" style="font-size: 1.2em;" data-translate-key="sectionEmola">Detalhes Emola</h3>
+                    <div class="input-group">
+                        <label for="emolaRecipientName" data-translate-key="fieldRecipientName">Nome do Beneficiário Emola</label>
+                        <input type="text" id="emolaRecipientName" name="emolaRecipientName" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="emolaDepositNumber" data-translate-key="fieldDepositNumber">Número de Depósito Emola</label>
+                        <input type="text" id="emolaDepositNumber" name="emolaDepositNumber" required>
+                    </div>
+
+
+                    <button type="submit" class="submit-btn" id="saveConfigButton" data-translate-key="submitButton">Salvar Configurações</button>
+                </form>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Script para lógica do Gerenciamento de Configurações EMBUTIDO AQUI -->
+    <script>
+        const BACKEND_URL = 'https://backend-cjl7.onrender.com';
+        const ADMIN_TOKEN_KEY = 'admin_token';
+        
+        // --- Constantes de Tradução ---
+        const translations = {
+            pt: {
+                backButton: 'Voltar', pageTitle: 'Configurações Globais',
+                sectionPromotion: 'Configurações de Promoção', sectionPayment: 'Configurações de Pagamento e Depósito',
+                sectionWithdrawal: 'Controle de Saque', /* NOVO */
+                sectionWithdrawalHours: 'Horário de Saque', /* NOVO */
+                fieldStartTime: 'Hora de Início (Ex: 08:00)', /* NOVO */
+                fieldEndTime: 'Hora de Fim (Ex: 18:00)', /* NOVO */
+                fieldMinWithdrawal: 'Valor Mínimo de Saque (MT)', /* NOVO */
+                fieldMaxWithdrawal: 'Valor Máximo de Saque (MT)', /* NOVO */
+                sectionMpesa: 'Detalhes M-Pesa', sectionEmola: 'Detalhes Emola',
+                fieldPromotionStatus: 'Status da Promoção de Indicação',
+                fieldCommissionActivation: 'Comissão na Ativação de Plano (Taxa Decimal - Ex: 0.05 para 5%)',
+                fieldCommissionDaily: 'Comissão no Lucro Diário do Referido (Taxa Decimal - Ex: 0.01 para 1%)',
+                fieldReferralBonusAmount: 'Bônus Fixo por Meta de Referidos (MT)',
+                fieldRequiredInvestedCount: 'Qtd. de Referidos *Investidores* para o Bônus Fixo',
+                fieldMinDeposit: 'Valor Mínimo de Depósito (MT)',
+                fieldRecipientName: 'Nome do Beneficiário',
+                fieldDepositNumber: 'Número de Depósito',
+                statusActive: 'ATIVA', statusInactive: 'INATIVA',
+                submitButton: 'Salvar Configurações',
+                loadingMessage: 'Carregando configurações...',
+                confirmSave: 'Tem certeza que deseja SALVAR as novas configurações globais? Isso afetará o funcionamento do sistema.',
+                saveSuccess: 'Configurações salvas com sucesso!',
+                actionFailed: 'Falha ao realizar ação:',
+                networkError: 'Erro de rede ou servidor indisponível.', sessionExpired: 'Sessão expirada. Faça login novamente.',
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAdminConfig();
+            document.getElementById('adminConfigForm').addEventListener('submit', handleFormSubmit);
+            document.getElementById('isPromotionActive').addEventListener('change', updateStatusLabel);
+        });
+
+        // --- Funções de UI e Navegação ---
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+
+        function setActionMessage(id, message, type = 'error', hide = false) {
+            const messageElement = document.getElementById(id);
+            if (messageElement) {
+                messageElement.classList.remove('hidden', 'success-message', 'error-message');
+                messageElement.textContent = message;
+                messageElement.classList.add(`${type}-message`);
+                if (hide) setTimeout(() => messageElement.classList.add('hidden'), 3000);
+            }
+        }
+        
+        function updateStatusLabel() {
+            const isChecked = document.getElementById('isPromotionActive').checked;
+            const label = document.getElementById('promotionStatusLabel');
+            label.textContent = isChecked ? translations.pt.statusActive : translations.pt.statusInactive;
+        }
+
+        // --- 1. Fetch e Preenchimento da Configuração ---
+        async function fetchAdminConfig() {
+            document.getElementById('loadingMessage').classList.remove('hidden');
+            document.getElementById('configFormContainer').classList.add('hidden');
+            
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+            if (!token) {
+                setActionMessage('alertMessage', translations.pt.sessionExpired, 'error');
+                document.getElementById('loadingMessage').classList.add('hidden');
+                setTimeout(() => navigateTo('admin_login.html'), 2000);
+                return;
+            }
+
+            try {
+                const endpoint = `${BACKEND_URL}/api/admin/config`; 
+                const response = await fetch(endpoint, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error("sessionExpired");
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`Status ${response.status}`);
+                }
+
+                const data = await response.json();
+                const config = data.config || {}; 
+
+                // Preenche o formulário
+                document.getElementById('isPromotionActive').checked = config.isPromotionActive;
+                document.getElementById('referralBonusAmount').value = config.referralBonusAmount || 0;
+                document.getElementById('referralRequiredInvestedCount').value = config.referralRequiredInvestedCount || 0;
+                document.getElementById('commissionOnPlanActivation').value = config.commissionOnPlanActivation || 0;
+                document.getElementById('commissionOnDailyProfit').value = config.commissionOnDailyProfit || 0;
+                document.getElementById('minDepositAmount').value = config.minDepositAmount || 50;
+                
+                // NOVO: Campos de Horário e Limite de Saque
+                document.getElementById('minWithdrawalAmount').value = config.minWithdrawalAmount || 1;
+                document.getElementById('maxWithdrawalAmount').value = config.maxWithdrawalAmount || 5000;
+                document.getElementById('withdrawalStartTime').value = config.withdrawalStartTime || '08:00';
+                document.getElementById('withdrawalEndTime').value = config.withdrawalEndTime || '18:00';
+
+                // Campos de Depósito
+                document.getElementById('mpesaDepositNumber').value = config.mpesaDepositNumber || '';
+                document.getElementById('mpesaRecipientName').value = config.mpesaRecipientName || '';
+                document.getElementById('emolaDepositNumber').value = config.emolaDepositNumber || '';
+                document.getElementById('emolaRecipientName').value = config.emolaRecipientName || '';
+                
+                updateStatusLabel(); // Atualiza o label do switch
+
+                document.getElementById('configFormContainer').classList.remove('hidden');
+                
+            } catch (error) {
+                if (error.message.includes("sessionExpired")) {
+                    setActionMessage('alertMessage', translations.pt.sessionExpired, 'error');
+                    localStorage.removeItem(ADMIN_TOKEN_KEY);
+                    setTimeout(() => navigateTo('admin_login.html'), 2000);
+                } else {
+                    setActionMessage('alertMessage', `${translations.pt.networkError}: ${error.message}`, 'error');
+                    console.error("Erro ao carregar configurações:", error);
+                }
+            } finally {
+                document.getElementById('loadingMessage').classList.add('hidden');
+            }
+        }
+
+
+        // --- 2. Lógica de Submissão do Formulário ---
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+
+            if (!confirm(translations.pt.confirmSave)) return;
+
+            const form = event.target;
+            const button = document.getElementById('saveConfigButton');
+            
+            // Cria o objeto de dados a ser enviado
+            const configData = {
+                isPromotionActive: document.getElementById('isPromotionActive').checked,
+                referralBonusAmount: parseFloat(document.getElementById('referralBonusAmount').value),
+                referralRequiredInvestedCount: parseInt(document.getElementById('referralRequiredInvestedCount').value),
+                commissionOnPlanActivation: parseFloat(document.getElementById('commissionOnPlanActivation').value),
+                commissionOnDailyProfit: parseFloat(document.getElementById('commissionOnDailyProfit').value),
+                minDepositAmount: parseFloat(document.getElementById('minDepositAmount').value),
+                
+                // NOVO: Horários e Limites de Saque
+                minWithdrawalAmount: parseFloat(document.getElementById('minWithdrawalAmount').value),
+                maxWithdrawalAmount: parseFloat(document.getElementById('maxWithdrawalAmount').value),
+                withdrawalStartTime: document.getElementById('withdrawalStartTime').value.trim(),
+                withdrawalEndTime: document.getElementById('withdrawalEndTime').value.trim(),
+
+                mpesaDepositNumber: document.getElementById('mpesaDepositNumber').value.trim(),
+                mpesaRecipientName: document.getElementById('mpesaRecipientName').value.trim(),
+                emolaDepositNumber: document.getElementById('emolaDepositNumber').value.trim(),
+                emolaRecipientName: document.getElementById('emolaRecipientName').value.trim(),
+            };
+            
+            // Validações de limites e taxas (o backend também valida)
+            if (configData.minWithdrawalAmount > configData.maxWithdrawalAmount) {
+                setActionMessage('alertMessage', 'O valor mínimo de saque não pode ser maior que o valor máximo.', 'error', true);
+                return;
+            }
+            if (configData.commissionOnPlanActivation < 0 || configData.commissionOnPlanActivation > 1 ||
+                configData.commissionOnDailyProfit < 0 || configData.commissionOnDailyProfit > 1) {
+                setActionMessage('alertMessage', 'As taxas de comissão devem ser valores decimais entre 0 e 1.', 'error', true);
+                return;
+            }
+            const timeRegex = /^\d{2}:\d{2}$/;
+            if (!timeRegex.test(configData.withdrawalStartTime) || !timeRegex.test(configData.withdrawalEndTime)) {
+                 setActionMessage('alertMessage', 'O formato das horas de saque deve ser HH:MM (Ex: 08:00).', 'error', true);
+                 return;
+            }
+
+
+            button.disabled = true;
+            button.textContent = 'Salvando...';
+
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+            const endpoint = `${BACKEND_URL}/api/admin/config`; 
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(configData)
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error("sessionExpired");
+                }
+                
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || `Status ${response.status}`);
+                }
+
+                setActionMessage('alertMessage', translations.pt.saveSuccess, 'success', true);
+                fetchAdminConfig(); // Recarrega para garantir que os valores na tela estão corretos
+
+            } catch (error) {
+                if (error.message.includes("sessionExpired")) {
+                    localStorage.removeItem(ADMIN_TOKEN_KEY);
+                    setTimeout(() => navigateTo('admin_login.html'), 2000);
+                } else {
+                    setActionMessage('alertMessage', `${translations.pt.actionFailed} ${error.message}`, 'error');
+                    console.error(`Falha ao salvar configurações:`, error);
+                }
+            } finally {
+                button.disabled = false;
+                button.textContent = translations.pt.submitButton;
+            }
+        }
+    </script>
+</body>
+</html>

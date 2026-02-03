@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KKR Admin | Saques Pendentes</title>
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome para ícones (CDN) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- CSS EMBUTIDO AQUI (Tema Admin) -->
+    <style>
+        /* Variáveis CSS para o tema Admin (Consistente) */
+        :root {
+            --primary-admin: #c0392b; 
+            --hover-admin: #a93226;
+            --text-dark: #333;
+            --text-medium: #666;
+            --border-light: #e0e0e0;
+            --white: #ffffff;
+            --app-background: #f4f4f7;
+            --card-bg: #fff;
+            --success-color: #27ae60;
+            --danger-color: #c0392b;
+            --info-color: #3498db;
+            --warning-color: #f39c12;
+            --withdrawal-amount-color: var(--danger-color); /* Cor principal de saque */
+        }
+
+        /* Base e Estrutura */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--app-background); min-height: 100vh; display: flex; flex-direction: column; }
+        .page-wrapper { max-width: 1000px; width: 100%; margin: 0 auto; background-color: var(--card-bg); min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        
+        /* Header (Consistente) */
+        .app-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: var(--primary-admin); color: var(--white); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .app-header .logo { font-size: 1.5em; font-weight: 700; }
+        .back-button { background: none; border: none; color: var(--white); font-size: 1.2em; cursor: pointer; transition: color 0.2s ease; padding: 5px; }
+        .back-button:hover { color: var(--warning-color); }
+
+        /* Main Content */
+        .main-content { padding: 25px; }
+        .page-title { font-size: 2em; color: var(--text-dark); margin-bottom: 25px; border-bottom: 2px solid var(--border-light); padding-bottom: 10px; }
+
+        /* Contêiner de Pedidos */
+        #pendingWithdrawalsContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Card de Saque Pendente */
+        .withdrawal-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-left: 5px solid var(--withdrawal-amount-color); /* Borda vermelha de saque */
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: grid;
+            grid-template-columns: 2fr 1fr 2fr; /* Detalhes | Montante | Ações */
+            gap: 15px;
+            align-items: center;
+        }
+
+        .withdrawal-card-details {
+            font-size: 0.9em;
+        }
+        .withdrawal-card-details h4 {
+            font-size: 1.1em;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+        .withdrawal-card-details p {
+            color: var(--text-medium);
+            margin: 2px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .withdrawal-card-details .details-full {
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
+            font-size: 0.8em;
+            background-color: var(--stats-bg);
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+
+        .withdrawal-card-amount {
+            text-align: center;
+        }
+        .withdrawal-card-amount .label {
+            font-size: 0.8em;
+            color: var(--text-medium);
+        }
+        .withdrawal-card-amount .value {
+            font-size: 1.6em;
+            font-weight: 700;
+            color: var(--withdrawal-amount-color);
+        }
+
+        /* Ações */
+        .withdrawal-card-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .action-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .btn-approve { background-color: var(--success-color); color: var(--white); }
+        .btn-approve:hover { background-color: #2ecc71; }
+        .btn-reject { background-color: var(--danger-color); color: var(--white); }
+        .btn-reject:hover { background-color: var(--hover-admin); }
+
+        /* Mensagens */
+        .message { padding: 15px; border-radius: 5px; margin-top: 15px; font-weight: 500; text-align: center; }
+        .loading-spinner { border: 4px solid rgba(0, 0, 0, 0.1); border-left-color: var(--primary-admin); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+        .error-message { color: var(--danger-color); background-color: rgba(192, 57, 43, 0.1); }
+        .success-message { color: var(--success-color); background-color: rgba(39, 174, 96, 0.1); }
+        .info-message { color: var(--info-color); background-color: rgba(52, 152, 219, 0.1); }
+
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <!-- Header -->
+        <header class="app-header">
+            <button class="back-button" onclick="navigateTo('admin_dashboard.html')" data-translate-key="backButton">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+            <div class="logo">ADMIN KKR</div>
+            <div></div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <h1 class="page-title" data-translate-key="pageTitle">Saques Pendentes</h1>
+            
+            <p id="loadingMessage" class="loading-spinner"></p>
+            <p id="alertMessage" class="message hidden"></p>
+
+            <div id="pendingWithdrawalsContainer">
+                <!-- Cards de saque serão injetados aqui -->
+            </div>
+            <p id="noWithdrawalsMessage" class="message info-message hidden" data-translate-key="noWithdrawals">Nenhum saque pendente no momento.</p>
+
+        </main>
+    </div>
+
+    <!-- Script para lógica do Painel Admin EMBUTIDO AQUI -->
+    <script>
+        const BACKEND_URL = 'https://backend-cjl7.onrender.com';
+        const ADMIN_TOKEN_KEY = 'admin_token';
+
+        // Objeto de traduções
+        const translations = {
+            pt: {
+                backButton: 'Voltar', pageTitle: 'Saques Pendentes', noWithdrawals: 'Nenhum saque pendente no momento.',
+                userPhone: 'Telefone do Usuário', transactionTime: 'Solicitado em', paymentDetails: 'Detalhes de Pagamento',
+                amountLabel: 'Valor', actionApprove: 'Aprovar (Transferido)', actionReject: 'Rejeitar (Reverter Saldo)',
+                confirmApprove: 'Tem certeza que o pagamento de {amount} MT foi enviado? Aprovar não pode ser desfeito.',
+                confirmReject: 'Tem certeza que deseja REJEITAR este saque? O valor de {amount} MT será devolvido ao saldo do usuário.',
+                actionSuccess: 'Ação realizada com sucesso.', actionFailed: 'Falha ao realizar ação:',
+                networkError: 'Erro de rede ou servidor indisponível.', sessionExpired: 'Sessão expirada. Faça login novamente.',
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchPendingWithdrawals();
+        });
+        
+        // --- Funções de UI e Navegação ---
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+
+        function setActionMessage(id, message, type = 'error', hide = false) {
+            const messageElement = document.getElementById(id);
+            if (messageElement) {
+                messageElement.classList.remove('hidden', 'success-message', 'error-message', 'info-message');
+                messageElement.textContent = message;
+                messageElement.classList.add(`${type}-message`);
+                if (hide) setTimeout(() => messageElement.classList.add('hidden'), 3000);
+            }
+        }
+
+        function clearContent() {
+            document.getElementById('noWithdrawalsMessage').classList.add('hidden');
+            document.getElementById('pendingWithdrawalsContainer').innerHTML = '';
+        }
+
+        // --- Lógica Principal de Carregamento ---
+        async function fetchPendingWithdrawals() {
+            clearContent();
+            document.getElementById('loadingMessage').classList.remove('hidden');
+
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+            if (!token) {
+                setActionMessage('alertMessage', translations.pt.sessionExpired, 'error');
+                document.getElementById('loadingMessage').classList.add('hidden');
+                setTimeout(() => navigateTo('admin_login.html'), 2000);
+                return;
+            }
+
+            try {
+                const endpoint = `${BACKEND_URL}/api/admin/withdrawals/pending`;
+                const response = await fetch(endpoint, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error("sessionExpired");
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`Status ${response.status}`);
+                }
+
+                const data = await response.json();
+                const withdrawals = data.withdrawals || []; 
+
+                if (withdrawals.length > 0) {
+                    renderWithdrawalCards(withdrawals);
+                } else {
+                    document.getElementById('noWithdrawalsMessage').classList.remove('hidden');
+                }
+                
+            } catch (error) {
+                if (error.message.includes("sessionExpired")) {
+                    setActionMessage('alertMessage', translations.pt.sessionExpired, 'error');
+                    localStorage.removeItem(ADMIN_TOKEN_KEY);
+                    setTimeout(() => navigateTo('admin_login.html'), 2000);
+                } else {
+                    setActionMessage('alertMessage', `${translations.pt.networkError}: ${error.message}`, 'error');
+                    console.error("Erro ao carregar saques:", error);
+                }
+            } finally {
+                document.getElementById('loadingMessage').classList.add('hidden');
+            }
+        }
+
+        // --- Renderização dos Cards ---
+        function renderWithdrawalCards(withdrawals) {
+            const container = document.getElementById('pendingWithdrawalsContainer');
+            
+            withdrawals.forEach(withdrawal => {
+                const requestedDate = new Date(withdrawal.requestDate).toLocaleString('pt-BR');
+                const userPhone = withdrawal.userId ? withdrawal.userId.phoneNumber : 'Usuário Removido';
+
+                const card = document.createElement('div');
+                card.className = 'withdrawal-card';
+                card.id = `withdrawal-${withdrawal._id}`;
+
+                card.innerHTML = `
+                    <div class="withdrawal-card-details">
+                        <h4><i class="fas fa-user"></i> ${translations.pt.userPhone}: ${userPhone}</h4>
+                        <p>
+                           <i class="fas fa-clock"></i> ${translations.pt.transactionTime}: ${requestedDate}
+                        </p>
+                        <div class="details-full">
+                           <i class="fas fa-money-check-alt"></i> ${translations.pt.paymentDetails}: ${withdrawal.walletAddress}
+                        </div>
+                    </div>
+                    <div class="withdrawal-card-amount">
+                        <p class="label">${translations.pt.amountLabel}</p>
+                        <p class="value">${withdrawal.amount.toFixed(2)} MT</p>
+                    </div>
+                    <div class="withdrawal-card-actions">
+                        <button class="action-btn btn-approve" onclick="handleWithdrawalAction('${withdrawal._id}', 'approve', ${withdrawal.amount})" data-id="${withdrawal._id}">
+                            <i class="fas fa-check"></i> ${translations.pt.actionApprove}
+                        </button>
+                        <button class="action-btn btn-reject" onclick="handleWithdrawalAction('${withdrawal._id}', 'reject', ${withdrawal.amount})" data-id="${withdrawal._id}">
+                            <i class="fas fa-times"></i> ${translations.pt.actionReject}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- Lógica de Ação (Aprovar/Rejeitar) ---
+        async function handleWithdrawalAction(withdrawalId, action, amount) {
+            const confirmMessageKey = action === 'approve' ? 'confirmApprove' : 'confirmReject';
+            if (!confirm(translations.pt[confirmMessageKey].replace('{amount}', amount.toFixed(2)))) {
+                return;
+            }
+
+            const button = document.querySelector(`.withdrawal-card button[data-id="${withdrawalId}"]`);
+            if (button) button.disabled = true;
+
+            const endpoint = `${BACKEND_URL}/api/admin/withdrawals/${withdrawalId}/${action}`;
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+            
+            setActionMessage('alertMessage', `Processando ${action}...`, 'info');
+            
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.message || `Status ${response.status}`);
+                }
+
+                // Sucesso: Remove o card e mostra a mensagem
+                setActionMessage('alertMessage', translations.pt.actionSuccess, 'success', true);
+                document.getElementById(`withdrawal-${withdrawalId}`).remove();
+                
+                // Se não houver mais saques, recarrega a lista
+                if (document.getElementById('pendingWithdrawalsContainer').children.length === 0) {
+                    document.getElementById('noWithdrawalsMessage').classList.remove('hidden');
+                }
+
+            } catch (error) {
+                if (error.message.includes("sessionExpired")) {
+                    localStorage.removeItem(ADMIN_TOKEN_KEY);
+                    setTimeout(() => navigateTo('admin_login.html'), 2000);
+                } else {
+                    setActionMessage('alertMessage', `${translations.pt.actionFailed} ${error.message}`, 'error');
+                    console.error(`Falha na ação ${action}:`, error);
+                }
+                if (button) button.disabled = false;
+            }
+        }
+        
+        // Expondo para o HTML
+        window.handleWithdrawalAction = handleWithdrawalAction;
+
+    </script>
+</body>
+</html>

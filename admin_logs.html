@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KKR Admin | Logs de Atividade</title>
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome para ícones (CDN) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- CSS EMBUTIDO AQUI (Tema Admin) -->
+    <style>
+        /* Variáveis CSS para o tema Admin (Consistente) */
+        :root {
+            --primary-admin: #c0392b; 
+            --hover-admin: #a93226;
+            --text-dark: #333;
+            --text-medium: #666;
+            --border-light: #e0e0e0;
+            --white: #ffffff;
+            --app-background: #f4f4f7;
+            --card-bg: #fff;
+            --stats-bg: #ecf0f1;
+            --success-color: #27ae60;
+            --danger-color: #c0392b;
+            --info-color: #3498db;
+            --warning-color: #f39c12;
+        }
+
+        /* Base e Estrutura */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--app-background); min-height: 100vh; display: flex; flex-direction: column; }
+        .page-wrapper { max-width: 1000px; width: 100%; margin: 0 auto; background-color: var(--card-bg); min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        
+        /* Header (Consistente) */
+        .app-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: var(--primary-admin); color: var(--white); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .app-header .logo { font-size: 1.5em; font-weight: 700; }
+        .back-button { background: none; border: none; color: var(--white); font-size: 1.2em; cursor: pointer; transition: color 0.2s ease; padding: 5px; }
+        .back-button:hover { color: var(--warning-color); }
+
+        /* Main Content */
+        .main-content { padding: 25px; }
+        .page-title { font-size: 2em; color: var(--text-dark); margin-bottom: 25px; border-bottom: 2px solid var(--border-light); padding-bottom: 10px; }
+        
+        /* Contêiner de Logs */
+        .logs-container {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        /* Tabela de Logs */
+        .logs-table-container {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+        .logs-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85em;
+        }
+        .logs-table th, .logs-table td {
+            padding: 10px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: top;
+        }
+        .logs-table th {
+            background-color: var(--stats-bg);
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        .logs-table td {
+            color: var(--text-dark);
+        }
+        .logs-table .log-details {
+            font-size: 0.8em;
+            color: var(--text-medium);
+            white-space: pre-wrap; /* Mantém a formatação de nova linha */
+            word-break: break-word;
+        }
+        .logs-table .log-action {
+            font-weight: 600;
+            color: var(--primary-admin);
+        }
+
+        /* Estilos de Carregamento e Mensagens */
+        .loading-spinner { border: 4px solid rgba(0, 0, 0, 0.1); border-left-color: var(--primary-admin); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+        .message { padding: 15px; border-radius: 5px; margin-bottom: 15px; font-weight: 500; text-align: center; }
+        .error-message { color: var(--danger-color); background-color: rgba(192, 57, 43, 0.1); }
+        .info-message { color: var(--info-color); background-color: rgba(52, 152, 219, 0.1); }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <!-- Header -->
+        <header class="app-header">
+            <button class="back-button" onclick="navigateTo('admin_dashboard.html')" data-translate-key="backButton">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+            <div class="logo">ADMIN KKR</div>
+            <div></div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <h1 class="page-title" data-translate-key="pageTitle">Logs de Atividade Administrativa</h1>
+            
+            <p id="alertMessage" class="message hidden"></p>
+            <p id="loadingMessage" class="loading-spinner"></p>
+
+            <div class="logs-container">
+                <p data-translate-key="logNote">Exibindo as 50 ações administrativas mais recentes.</p>
+                
+                <div class="logs-table-container">
+                    <table id="logsTable" class="logs-table hidden">
+                        <thead>
+                            <tr>
+                                <th data-translate-key="headerTimestamp">Timestamp</th>
+                                <th data-translate-key="headerAdmin">Admin ID</th>
+                                <th data-translate-key="headerAction">Ação</th>
+                                <th data-translate-key="headerDetails">Detalhes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody">
+                            <!-- Linhas de logs serão injetadas aqui -->
+                        </tbody>
+                    </table>
+                    <p id="noLogsMessage" class="message info-message hidden" data-translate-key="noLogs">Nenhum log de atividade encontrado.</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Script para lógica de Logs EMBUTIDO AQUI -->
+    <script>
+        const BACKEND_URL = 'https://backend-cjl7.onrender.com';
+        const ADMIN_TOKEN_KEY = 'admin_token';
+        
+        // --- Constantes de Tradução ---
+        const translations = {
+            pt: {
+                backButton: 'Voltar', pageTitle: 'Logs de Atividade Administrativa',
+                logNote: 'Exibindo as 50 ações administrativas mais recentes.',
+                headerTimestamp: 'Timestamp', headerAdmin: 'Admin ID', headerAction: 'Ação', headerDetails: 'Detalhes',
+                noLogs: 'Nenhum log de atividade encontrado.',
+                loadingMessage: 'Carregando logs de atividade...',
+                networkError: 'Erro de rede ou servidor indisponível.', sessionExpired: 'Sessão expirada. Faça login novamente.',
+                systemUser: 'SISTEMA',
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAdminLogs();
+        });
+
+        // --- Funções de UI e Navegação ---
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+
+        function setActionMessage(id, message, type = 'error', hide = false) {
+            const messageElement = document.getElementById(id);
+            if (messageElement) {
+                messageElement.classList.remove('hidden', 'success-message', 'error-message', 'info-message');
+                messageElement.textContent = message;
+                messageElement.classList.add(`${type}-message`);
+                if (hide) setTimeout(() => messageElement.classList.add('hidden'), 3000);
+            }
+        }
+        
+        // --- Função Principal: Fetch e Renderização de Logs ---
+        async function fetchAdminLogs() {
+            document.getElementById('logsTableBody').innerHTML = '';
+            document.getElementById('loadingMessage').classList.remove('hidden');
+            document.getElementById('logsTable').classList.add('hidden');
+            document.getElementById('noLogsMessage').classList.add('hidden');
+            
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+            if (!token) {
+                setActionMessage('alertMessage', translations.pt.sessionExpired, 'error');
+                document.getElementById('loadingMessage').classList.add('hidden');
+                setTimeout(() => navigateTo('admin_login.html'), 2000);
+                return;
+            }
+
+            try {
+                // NOTA: Esta rota GET /api/admin/logs/admin-actions PRECISA SER IMPLEMENTADA no backend
+                // (controllers.js e routes.js) para ler o arquivo admin_actions.log
+                const endpoint = `${BACKEND_URL}/api/admin/logs/admin-actions`; 
+                const response = await fetch(endpoint, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error("sessionExpired");
+                }
+                
+                if (response.status === 404) {
+                    // Mensagem especial se o endpoint não existir
+                    setActionMessage('alertMessage', 'Endpoint de Logs (/api/admin/logs/admin-actions) não implementado no servidor.', 'info', false);
+                    return;
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`Status ${response.status}`);
+                }
+
+                const data = await response.json();
+                const logs = data.logs || []; // Esperamos um array de objetos de log
+                
+                if (logs.length > 0) {
+                    renderLogsTable(logs);
+                    document.getElementById('logsTable').classList.remove('hidden');
+                } else {
+                    document.getElementById('noLogsMessage').classList.remove('hidden');
+                }
+                
+            } catch (error) {
+                if (error.message.includes("sessionExpired")) {
+                    setActionMessage('alertMessage', translations.pt.sessionExpired, 'error');
+                    localStorage.removeItem(ADMIN_TOKEN_KEY);
+                    setTimeout(() => navigateTo('admin_login.html'), 2000);
+                } else {
+                    setActionMessage('alertMessage', `${translations.pt.networkError}: ${error.message}`, 'error');
+                    console.error("Erro ao carregar logs:", error);
+                }
+            } finally {
+                document.getElementById('loadingMessage').classList.add('hidden');
+            }
+        }
+
+        // --- Renderização da Tabela de Logs ---
+        function renderLogsTable(logs) {
+            const tbody = document.getElementById('logsTableBody');
+            tbody.innerHTML = ''; 
+
+            // Limita a 50 logs mais recentes (se o backend não o fizer)
+            logs.slice(0, 50).forEach(log => {
+                const row = tbody.insertRow();
+                
+                // Tenta fazer o parse do JSON do log (como é gravado pelo utils.js)
+                try {
+                    const logData = JSON.parse(log);
+                    
+                    // Extrai Admin ID e Ação
+                    const adminIdMatch = logData.message.match(/ADMIN_ACTION by (.*?): (.*)/);
+                    const adminId = adminIdMatch ? adminIdMatch[1] : 'N/A';
+                    const action = adminIdMatch ? adminIdMatch[2] : logData.message.replace('INFO:', '').replace('ERROR:', '').trim();
+                    
+                    // Remove campos duplicados para os detalhes
+                    const details = { ...logData };
+                    delete details.timestamp;
+                    delete details.message;
+                    
+                    const detailsString = JSON.stringify(details, null, 2); // Formata os detalhes
+
+                    row.innerHTML = `
+                        <td>${new Date(logData.timestamp).toLocaleString('pt-BR')}</td>
+                        <td>${adminId === 'SYSTEM' ? translations.pt.systemUser : adminId}</td>
+                        <td class="log-action">${action}</td>
+                        <td class="log-details">${detailsString}</td>
+                    `;
+                } catch (e) {
+                    // Se o parse JSON falhar (log formatado incorretamente)
+                    row.innerHTML = `<td colspan="4">Erro ao processar linha de log: ${log}</td>`;
+                }
+            });
+        }
+        
+        // Expõe funções para o HTML
+        window.fetchAdminLogs = fetchAdminLogs;
+
+    </script>
+</body>
+</html>
