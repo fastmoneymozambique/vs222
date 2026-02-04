@@ -1,3 +1,5 @@
+--- START OF FILE admin_config.html ---
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -98,56 +100,13 @@
             font-weight: 600;
         }
 
-        /* Checkbox Switch (REMOVIDO, mas mantido o estilo caso mude de ideia) */
+        /* Checkbox Switch (Removido os estilos não utilizados) */
         .switch-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--danger-color);
-            transition: .4s;
-            border-radius: 34px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider {
-            background-color: var(--success-color);
-        }
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-        .switch-label {
-            font-size: 1em;
-            font-weight: 700;
-            color: var(--danger-color);
-        }
-        input:checked ~ .switch-label {
-            color: var(--success-color);
-        }
-
+        
         /* Botão Salvar */
         .submit-btn {
             width: 100%;
@@ -195,7 +154,23 @@
             <div id="configFormContainer" class="config-form-container hidden">
                 <form id="adminConfigForm">
                     
-                    <!-- REMOVIDA: Configurações de Promoção e Referência -->
+                    <!-- Configurações de Comissão por Indicação (Sempre Ativa) -->
+                    <h2 class="config-section-title" data-translate-key="sectionCommission">Configurações de Comissão por Indicação</h2>
+                    <p style="font-size: 0.9em; color: var(--text-medium); margin-bottom: 15px;">A comissão é creditada no saldo principal do usuário que convidou.</p>
+
+
+                    <div class="input-group">
+                        <label for="commissionOnPlanActivation" data-translate-key="fieldCommissionActivation">Comissão (Taxa) por Ativação de Plano</label>
+                        <input type="number" id="commissionOnPlanActivation" name="commissionOnPlanActivation" step="0.0001" min="0" max="1" required>
+                        <p style="font-size: 0.8em; color: var(--text-medium); margin-top: 5px;">* Ex: 0.05 para 5% do valor investido pelo referido.</p>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="commissionOnDailyProfit" data-translate-key="fieldCommissionDaily">Comissão (Taxa) sobre Lucro Diário</label>
+                        <input type="number" id="commissionOnDailyProfit" name="commissionOnDailyProfit" step="0.0001" min="0" max="1" required>
+                        <p style="font-size: 0.8em; color: var(--text-medium); margin-top: 5px;">* Ex: 0.02 para 2% do lucro diário gerado pelo referido.</p>
+                    </div>
+                    
                     
                     <!-- Configurações de Depósito e Pagamento -->
                     <h2 class="config-section-title" data-translate-key="sectionPayment">Configurações de Pagamento e Depósito</h2>
@@ -205,7 +180,7 @@
                         <input type="number" id="minDepositAmount" name="minDepositAmount" step="any" min="1" required>
                     </div>
                     
-                    <!-- NOVO: Configurações de Saque (Horário e Limites) -->
+                    <!-- Configurações de Saque (Horário e Limites) -->
                     <h2 class="config-section-title" data-translate-key="sectionWithdrawal">Controle de Saque</h2>
                     <p style="font-size: 0.9em; color: var(--text-medium); margin-bottom: 10px;">Define a janela de tempo e os limites para a solicitação de saques pelos usuários.</p>
 
@@ -229,7 +204,6 @@
                         <label for="withdrawalEndTime" data-translate-key="fieldEndTime">Hora de Fim (Ex: 18:00)</label>
                         <input type="time" id="withdrawalEndTime" name="withdrawalEndTime" required>
                     </div>
-                    <!-- FIM NOVO: Configurações de Saque -->
 
                     <h3 class="config-section-title" style="font-size: 1.2em; margin-top: 20px;" data-translate-key="sectionMpesa">Detalhes M-Pesa</h3>
                     <div class="input-group">
@@ -268,7 +242,11 @@
         const translations = {
             pt: {
                 backButton: 'Voltar', pageTitle: 'Configurações Globais',
-                // REMOVIDA: sectionPromotion: 'Configurações de Promoção',
+                // Configs de Comissão (Ajustadas)
+                sectionCommission: 'Configurações de Comissão por Indicação',
+                fieldCommissionActivation: 'Comissão (Taxa) por Ativação de Plano', 
+                fieldCommissionDaily: 'Comissão (Taxa) sobre Lucro Diário', 
+                
                 sectionPayment: 'Configurações de Pagamento e Depósito',
                 sectionWithdrawal: 'Controle de Saque', 
                 sectionWithdrawalHours: 'Horário de Saque', 
@@ -276,12 +254,10 @@
                 fieldEndTime: 'Hora de Fim (Ex: 18:00)', 
                 fieldMinWithdrawal: 'Valor Mínimo de Saque (MT)', 
                 fieldMaxWithdrawal: 'Valor Máximo de Saque (MT)', 
-                // REMOVIDOS: fieldPromotionStatus, fieldCommissionActivation, fieldCommissionDaily, fieldReferralBonusAmount, fieldRequiredInvestedCount
                 fieldMinDeposit: 'Valor Mínimo de Depósito (MT)',
                 sectionMpesa: 'Detalhes M-Pesa', sectionEmola: 'Detalhes Emola',
                 fieldRecipientName: 'Nome do Beneficiário',
                 fieldDepositNumber: 'Número de Depósito',
-                // REMOVIDOS: statusActive, statusInactive,
                 submitButton: 'Salvar Configurações',
                 loadingMessage: 'Carregando configurações...',
                 confirmSave: 'Tem certeza que deseja SALVAR as novas configurações globais? Isso afetará o funcionamento do sistema.',
@@ -294,7 +270,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             fetchAdminConfig();
             document.getElementById('adminConfigForm').addEventListener('submit', handleFormSubmit);
-            // document.getElementById('isPromotionActive').addEventListener('change', updateStatusLabel); // REMOVIDO
         });
 
         // --- Funções de UI e Navegação ---
@@ -312,12 +287,6 @@
             }
         }
         
-        // function updateStatusLabel() {
-        //     const isChecked = document.getElementById('isPromotionActive').checked;
-        //     const label = document.getElementById('promotionStatusLabel');
-        //     label.textContent = isChecked ? translations.pt.statusActive : translations.pt.statusInactive;
-        // } // REMOVIDO
-
         // --- 1. Fetch e Preenchimento da Configuração ---
         async function fetchAdminConfig() {
             document.getElementById('loadingMessage').classList.remove('hidden');
@@ -348,12 +317,10 @@
                 const data = await response.json();
                 const config = data.config || {}; 
 
-                // Campos de Promoção (REMOVIDOS)
-                // document.getElementById('isPromotionActive').checked = config.isPromotionActive;
-                // document.getElementById('referralBonusAmount').value = config.referralBonusAmount || 0;
-                // document.getElementById('referralRequiredInvestedCount').value = config.referralRequiredInvestedCount || 0;
-                // document.getElementById('commissionOnPlanActivation').value = config.commissionOnPlanActivation || 0;
-                // document.getElementById('commissionOnDailyProfit').value = config.commissionOnDailyProfit || 0;
+                // Campos de Comissão
+                // isPromotionActive removido
+                document.getElementById('commissionOnPlanActivation').value = config.commissionOnPlanActivation || 0.05;
+                document.getElementById('commissionOnDailyProfit').value = config.commissionOnDailyProfit || 0.02;
                 
                 // Campos de Depósito e Saque (MANTIDOS)
                 document.getElementById('minDepositAmount').value = config.minDepositAmount || 50;
@@ -366,8 +333,6 @@
                 document.getElementById('emolaDepositNumber').value = config.emolaDepositNumber || '';
                 document.getElementById('emolaRecipientName').value = config.emolaRecipientName || '';
                 
-                // updateStatusLabel(); // REMOVIDO
-
                 document.getElementById('configFormContainer').classList.remove('hidden');
                 
             } catch (error) {
@@ -394,16 +359,16 @@
             const form = event.target;
             const button = document.getElementById('saveConfigButton');
             
-            // Cria o objeto de dados a ser enviado (sem campos de promoção)
+            // Cria o objeto de dados a ser enviado
             const configData = {
-                // REMOVIDOS:
-                // isPromotionActive: document.getElementById('isPromotionActive').checked,
-                // referralBonusAmount: parseFloat(document.getElementById('referralBonusAmount').value),
-                // referralRequiredInvestedCount: parseInt(document.getElementById('referralRequiredInvestedCount').value),
-                // commissionOnPlanActivation: parseFloat(document.getElementById('commissionOnPlanActivation').value),
-                // commissionOnDailyProfit: parseFloat(document.getElementById('commissionOnDailyProfit').value),
+                // isPromotionActive não é enviado
+                commissionOnPlanActivation: parseFloat(document.getElementById('commissionOnPlanActivation').value),
+                commissionOnDailyProfit: parseFloat(document.getElementById('commissionOnDailyProfit').value),
                 
-                // MANTIDOS:
+                // Força o Bônus Fixo a zero (embora o controller não use, garante que o campo está preenchido se o modelo ainda o tiver)
+                // Se o models.js foi limpo (como na última revisão), esses campos não existirão no AdminConfig, mas enviá-los é inofensivo.
+                // Vou removê-los aqui para ter a certeza que o JSON do body é mais limpo.
+                
                 minDepositAmount: parseFloat(document.getElementById('minDepositAmount').value),
                 minWithdrawalAmount: parseFloat(document.getElementById('minWithdrawalAmount').value),
                 maxWithdrawalAmount: parseFloat(document.getElementById('maxWithdrawalAmount').value),
@@ -416,7 +381,7 @@
                 emolaRecipientName: document.getElementById('emolaRecipientName').value.trim(),
             };
             
-            // Validações (apenas as restantes)
+            // Validações
             if (configData.minWithdrawalAmount > configData.maxWithdrawalAmount) {
                 setActionMessage('alertMessage', 'O valor mínimo de saque não pode ser maior que o valor máximo.', 'error', true);
                 return;
@@ -455,7 +420,7 @@
                 }
 
                 setActionMessage('alertMessage', translations.pt.saveSuccess, 'success', true);
-                fetchAdminConfig(); // Recarrega para garantir que os valores na tela estão corretos
+                fetchAdminConfig(); 
 
             } catch (error) {
                 if (error.message.includes("sessionExpired")) {
