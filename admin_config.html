@@ -98,7 +98,7 @@
             font-weight: 600;
         }
 
-        /* Checkbox Switch */
+        /* Checkbox Switch (REMOVIDO, mas mantido o estilo caso mude de ideia) */
         .switch-container {
             display: flex;
             align-items: center;
@@ -195,40 +195,8 @@
             <div id="configFormContainer" class="config-form-container hidden">
                 <form id="adminConfigForm">
                     
-                    <!-- Configurações de Promoção e Referência -->
-                    <h2 class="config-section-title" data-translate-key="sectionPromotion">Configurações de Promoção</h2>
-
-                    <div class="input-group">
-                        <div class="switch-container">
-                            <label for="isPromotionActive" data-translate-key="fieldPromotionStatus">Status da Promoção de Indicação</label>
-                            <label class="switch">
-                                <input type="checkbox" id="isPromotionActive" name="isPromotionActive">
-                                <span class="slider"></span>
-                            </label>
-                            <span class="switch-label" id="promotionStatusLabel" data-translate-key="statusInactive">INATIVA</span>
-                        </div>
-                    </div>
+                    <!-- REMOVIDA: Configurações de Promoção e Referência -->
                     
-                    <div class="input-group">
-                        <label for="commissionOnPlanActivation" data-translate-key="fieldCommissionActivation">Comissão na Ativação de Plano (Taxa Decimal - Ex: 0.05 para 5%)</label>
-                        <input type="number" id="commissionOnPlanActivation" name="commissionOnPlanActivation" step="0.001" min="0" max="1" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="commissionOnDailyProfit" data-translate-key="fieldCommissionDaily">Comissão no Lucro Diário do Referido (Taxa Decimal - Ex: 0.01 para 1%)</label>
-                        <input type="number" id="commissionOnDailyProfit" name="commissionOnDailyProfit" step="0.001" min="0" max="1" required>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="referralBonusAmount" data-translate-key="fieldReferralBonusAmount">Bônus Fixo por Meta de Referidos (MT)</label>
-                        <input type="number" id="referralBonusAmount" name="referralBonusAmount" step="any" min="0" required>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="referralRequiredInvestedCount" data-translate-key="fieldRequiredInvestedCount">Qtd. de Referidos *Investidores* para o Bônus Fixo</label>
-                        <input type="number" id="referralRequiredInvestedCount" name="referralRequiredInvestedCount" step="1" min="0" required>
-                    </div>
-
                     <!-- Configurações de Depósito e Pagamento -->
                     <h2 class="config-section-title" data-translate-key="sectionPayment">Configurações de Pagamento e Depósito</h2>
 
@@ -300,27 +268,24 @@
         const translations = {
             pt: {
                 backButton: 'Voltar', pageTitle: 'Configurações Globais',
-                sectionPromotion: 'Configurações de Promoção', sectionPayment: 'Configurações de Pagamento e Depósito',
-                sectionWithdrawal: 'Controle de Saque', /* NOVO */
-                sectionWithdrawalHours: 'Horário de Saque', /* NOVO */
-                fieldStartTime: 'Hora de Início (Ex: 08:00)', /* NOVO */
-                fieldEndTime: 'Hora de Fim (Ex: 18:00)', /* NOVO */
-                fieldMinWithdrawal: 'Valor Mínimo de Saque (MT)', /* NOVO */
-                fieldMaxWithdrawal: 'Valor Máximo de Saque (MT)', /* NOVO */
-                sectionMpesa: 'Detalhes M-Pesa', sectionEmola: 'Detalhes Emola',
-                fieldPromotionStatus: 'Status da Promoção de Indicação',
-                fieldCommissionActivation: 'Comissão na Ativação de Plano (Taxa Decimal - Ex: 0.05 para 5%)',
-                fieldCommissionDaily: 'Comissão no Lucro Diário do Referido (Taxa Decimal - Ex: 0.01 para 1%)',
-                fieldReferralBonusAmount: 'Bônus Fixo por Meta de Referidos (MT)',
-                fieldRequiredInvestedCount: 'Qtd. de Referidos *Investidores* para o Bônus Fixo',
+                // REMOVIDA: sectionPromotion: 'Configurações de Promoção',
+                sectionPayment: 'Configurações de Pagamento e Depósito',
+                sectionWithdrawal: 'Controle de Saque', 
+                sectionWithdrawalHours: 'Horário de Saque', 
+                fieldStartTime: 'Hora de Início (Ex: 08:00)', 
+                fieldEndTime: 'Hora de Fim (Ex: 18:00)', 
+                fieldMinWithdrawal: 'Valor Mínimo de Saque (MT)', 
+                fieldMaxWithdrawal: 'Valor Máximo de Saque (MT)', 
+                // REMOVIDOS: fieldPromotionStatus, fieldCommissionActivation, fieldCommissionDaily, fieldReferralBonusAmount, fieldRequiredInvestedCount
                 fieldMinDeposit: 'Valor Mínimo de Depósito (MT)',
+                sectionMpesa: 'Detalhes M-Pesa', sectionEmola: 'Detalhes Emola',
                 fieldRecipientName: 'Nome do Beneficiário',
                 fieldDepositNumber: 'Número de Depósito',
-                statusActive: 'ATIVA', statusInactive: 'INATIVA',
+                // REMOVIDOS: statusActive, statusInactive,
                 submitButton: 'Salvar Configurações',
                 loadingMessage: 'Carregando configurações...',
                 confirmSave: 'Tem certeza que deseja SALVAR as novas configurações globais? Isso afetará o funcionamento do sistema.',
-                saveSuccess: 'Configurações salvas com sucesso!',
+                saveSuccess: 'Configurações salvas com sucesso.',
                 actionFailed: 'Falha ao realizar ação:',
                 networkError: 'Erro de rede ou servidor indisponível.', sessionExpired: 'Sessão expirada. Faça login novamente.',
             }
@@ -329,7 +294,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             fetchAdminConfig();
             document.getElementById('adminConfigForm').addEventListener('submit', handleFormSubmit);
-            document.getElementById('isPromotionActive').addEventListener('change', updateStatusLabel);
+            // document.getElementById('isPromotionActive').addEventListener('change', updateStatusLabel); // REMOVIDO
         });
 
         // --- Funções de UI e Navegação ---
@@ -347,11 +312,11 @@
             }
         }
         
-        function updateStatusLabel() {
-            const isChecked = document.getElementById('isPromotionActive').checked;
-            const label = document.getElementById('promotionStatusLabel');
-            label.textContent = isChecked ? translations.pt.statusActive : translations.pt.statusInactive;
-        }
+        // function updateStatusLabel() {
+        //     const isChecked = document.getElementById('isPromotionActive').checked;
+        //     const label = document.getElementById('promotionStatusLabel');
+        //     label.textContent = isChecked ? translations.pt.statusActive : translations.pt.statusInactive;
+        // } // REMOVIDO
 
         // --- 1. Fetch e Preenchimento da Configuração ---
         async function fetchAdminConfig() {
@@ -383,27 +348,25 @@
                 const data = await response.json();
                 const config = data.config || {}; 
 
-                // Preenche o formulário
-                document.getElementById('isPromotionActive').checked = config.isPromotionActive;
-                document.getElementById('referralBonusAmount').value = config.referralBonusAmount || 0;
-                document.getElementById('referralRequiredInvestedCount').value = config.referralRequiredInvestedCount || 0;
-                document.getElementById('commissionOnPlanActivation').value = config.commissionOnPlanActivation || 0;
-                document.getElementById('commissionOnDailyProfit').value = config.commissionOnDailyProfit || 0;
-                document.getElementById('minDepositAmount').value = config.minDepositAmount || 50;
+                // Campos de Promoção (REMOVIDOS)
+                // document.getElementById('isPromotionActive').checked = config.isPromotionActive;
+                // document.getElementById('referralBonusAmount').value = config.referralBonusAmount || 0;
+                // document.getElementById('referralRequiredInvestedCount').value = config.referralRequiredInvestedCount || 0;
+                // document.getElementById('commissionOnPlanActivation').value = config.commissionOnPlanActivation || 0;
+                // document.getElementById('commissionOnDailyProfit').value = config.commissionOnDailyProfit || 0;
                 
-                // NOVO: Campos de Horário e Limite de Saque
+                // Campos de Depósito e Saque (MANTIDOS)
+                document.getElementById('minDepositAmount').value = config.minDepositAmount || 50;
                 document.getElementById('minWithdrawalAmount').value = config.minWithdrawalAmount || 1;
                 document.getElementById('maxWithdrawalAmount').value = config.maxWithdrawalAmount || 5000;
                 document.getElementById('withdrawalStartTime').value = config.withdrawalStartTime || '08:00';
                 document.getElementById('withdrawalEndTime').value = config.withdrawalEndTime || '18:00';
-
-                // Campos de Depósito
                 document.getElementById('mpesaDepositNumber').value = config.mpesaDepositNumber || '';
                 document.getElementById('mpesaRecipientName').value = config.mpesaRecipientName || '';
                 document.getElementById('emolaDepositNumber').value = config.emolaDepositNumber || '';
                 document.getElementById('emolaRecipientName').value = config.emolaRecipientName || '';
                 
-                updateStatusLabel(); // Atualiza o label do switch
+                // updateStatusLabel(); // REMOVIDO
 
                 document.getElementById('configFormContainer').classList.remove('hidden');
                 
@@ -431,16 +394,17 @@
             const form = event.target;
             const button = document.getElementById('saveConfigButton');
             
-            // Cria o objeto de dados a ser enviado
+            // Cria o objeto de dados a ser enviado (sem campos de promoção)
             const configData = {
-                isPromotionActive: document.getElementById('isPromotionActive').checked,
-                referralBonusAmount: parseFloat(document.getElementById('referralBonusAmount').value),
-                referralRequiredInvestedCount: parseInt(document.getElementById('referralRequiredInvestedCount').value),
-                commissionOnPlanActivation: parseFloat(document.getElementById('commissionOnPlanActivation').value),
-                commissionOnDailyProfit: parseFloat(document.getElementById('commissionOnDailyProfit').value),
-                minDepositAmount: parseFloat(document.getElementById('minDepositAmount').value),
+                // REMOVIDOS:
+                // isPromotionActive: document.getElementById('isPromotionActive').checked,
+                // referralBonusAmount: parseFloat(document.getElementById('referralBonusAmount').value),
+                // referralRequiredInvestedCount: parseInt(document.getElementById('referralRequiredInvestedCount').value),
+                // commissionOnPlanActivation: parseFloat(document.getElementById('commissionOnPlanActivation').value),
+                // commissionOnDailyProfit: parseFloat(document.getElementById('commissionOnDailyProfit').value),
                 
-                // NOVO: Horários e Limites de Saque
+                // MANTIDOS:
+                minDepositAmount: parseFloat(document.getElementById('minDepositAmount').value),
                 minWithdrawalAmount: parseFloat(document.getElementById('minWithdrawalAmount').value),
                 maxWithdrawalAmount: parseFloat(document.getElementById('maxWithdrawalAmount').value),
                 withdrawalStartTime: document.getElementById('withdrawalStartTime').value.trim(),
@@ -452,14 +416,9 @@
                 emolaRecipientName: document.getElementById('emolaRecipientName').value.trim(),
             };
             
-            // Validações de limites e taxas (o backend também valida)
+            // Validações (apenas as restantes)
             if (configData.minWithdrawalAmount > configData.maxWithdrawalAmount) {
                 setActionMessage('alertMessage', 'O valor mínimo de saque não pode ser maior que o valor máximo.', 'error', true);
-                return;
-            }
-            if (configData.commissionOnPlanActivation < 0 || configData.commissionOnPlanActivation > 1 ||
-                configData.commissionOnDailyProfit < 0 || configData.commissionOnDailyProfit > 1) {
-                setActionMessage('alertMessage', 'As taxas de comissão devem ser valores decimais entre 0 e 1.', 'error', true);
                 return;
             }
             const timeRegex = /^\d{2}:\d{2}$/;
